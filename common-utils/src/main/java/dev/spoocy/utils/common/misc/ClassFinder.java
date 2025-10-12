@@ -53,7 +53,7 @@ public class ClassFinder extends SecurityManager {
         }
     }
 
-    private ClassFinder() {
+    public ClassFinder() {
         super();
     }
 
