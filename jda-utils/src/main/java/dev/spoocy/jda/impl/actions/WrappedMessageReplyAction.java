@@ -2,7 +2,6 @@ package dev.spoocy.jda.impl.actions;
 
 import dev.spoocy.jda.message.AbstractReplyAction;
 import dev.spoocy.jda.message.ReplyAction;
-import net.dv8tion.jda.api.components.Component;
 import net.dv8tion.jda.api.components.MessageTopLevelComponent;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;

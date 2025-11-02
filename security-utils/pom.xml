@@ -9,8 +9,7 @@
         <version>1.0.9</version>
     </parent>
 
-    <artifactId>reflection-utils</artifactId>
-
+    <artifactId>security-utils</artifactId>
 
     <dependencies>
 
@@ -27,6 +26,11 @@
         <dependency>
             <groupId>dev.spoocy.utils</groupId>
             <artifactId>common-utils</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>dev.spoocy.utils</groupId>
+            <artifactId>reflection-utils</artifactId>
         </dependency>
 
     </dependencies>

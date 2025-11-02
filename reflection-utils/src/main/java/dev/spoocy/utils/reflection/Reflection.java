@@ -1,6 +1,8 @@
 package dev.spoocy.utils.reflection;
 
 import dev.spoocy.utils.common.collections.Collector;
+import dev.spoocy.utils.reflection.accessor.ConstructorAccessor;
+import dev.spoocy.utils.reflection.accessor.FieldAccessor;
 import dev.spoocy.utils.reflection.accessor.MethodAccessor;
 import dev.spoocy.utils.reflection.accessor.impl.ReflectionBuilderImpl;
 import dev.spoocy.utils.reflection.builder.FieldBuilder;
@@ -9,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -30,18 +31,59 @@ public class Reflection {
         return FieldBuilder.create();
     }
 
-    public static <T> T invokeConstructor(@NotNull Class<T> clazz, @NotNull Object... args) {
-
-        Class<?>[] parameterTypes = Collector.of(args)
-                .map(Object::getClass)
-                .asArray();
-
-        return (T) builder()
+    public static ConstructorAccessor getConstructor(@NotNull Class<?> clazz, @NotNull Class<?>... parameters) {
+        return builder()
                 .forClass(clazz)
                 .publicMembers()
                 .buildAccess()
-                .constructor(parameterTypes)
-                .invoke(args);
+                .constructor(parameters);
+    }
+
+    public static FieldAccessor getField(@NotNull Class<?> clazz, @Nullable String fieldName, @Nullable Class<?> fieldType) {
+        FieldBuilder builder = field();
+
+        if (fieldName != null) {
+            builder.name(fieldName);
+        }
+
+        if (fieldType != null) {
+            builder.type(fieldType);
+        }
+
+        return Reflection.builder()
+                .forClass(clazz)
+                .inheritedMembers()
+                .buildAccess()
+                .field(builder.build());
+    }
+
+    public static MethodAccessor getMethod(@NotNull Class<?> clazz, @Nullable String methodName, @Nullable Object... args) {
+
+        Class<?>[] parameterTypes = new Class<?>[args != null ? args.length : 0];
+        if (args != null && args.length > 0) {
+            for (int i = 0; i < args.length; i++) {
+                parameterTypes[i] = args[i].getClass();
+            }
+        }
+
+        MethodBuilder builder = method();
+
+        if (methodName != null) {
+            builder.name(methodName);
+        }
+
+        if (parameterTypes.length > 0) {
+            builder.parameterCount(parameterTypes.length);
+            for(int i = 0; i < parameterTypes.length; i++) {
+                builder.parameterType(i, parameterTypes[i]);
+            }
+        }
+
+        return Reflection.builder()
+                .forClass(clazz)
+                .inheritedMembers()
+                .buildAccess()
+                .method(builder.build());
     }
 
     /**

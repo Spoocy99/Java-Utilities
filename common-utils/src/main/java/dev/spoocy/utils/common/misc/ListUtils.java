@@ -55,6 +55,23 @@ public final class ListUtils {
         return (T[]) result.toArray();
     }
 
+    @SafeVarargs
+    public static <T> List<T> combineLists(@NotNull List<T>... lists) {
+        List<T> result = new ArrayList<>();
+
+        for (List<T> list : lists) {
+            result.addAll(list);
+        }
+
+        return result;
+    }
+
+    @SafeVarargs
+    public static <T> List<T> addToList(@NotNull List<T> list, @NotNull T... elements) {
+        Collections.addAll(list, elements);
+        return list;
+    }
+
 
 
 }

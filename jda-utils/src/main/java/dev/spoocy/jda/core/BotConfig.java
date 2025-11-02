@@ -3,11 +3,10 @@ package dev.spoocy.jda.core;
 import dev.spoocy.utils.common.collections.Collector;
 import dev.spoocy.utils.common.log.LogLevel;
 import dev.spoocy.utils.config.Document;
-import dev.spoocy.utils.config.documents.JsonConfig;
 import net.dv8tion.jda.api.OnlineStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,18 +20,21 @@ public class BotConfig {
     private final HashMap<String, Object> defaults = new HashMap<>();
     private final Document file;
 
-    public BotConfig(@NotNull File config) {
+    public BotConfig(@NotNull Document config) {
+        this.file = config;
+        this.loadDefaults();
+        this.load();
+    }
+
+    protected void loadDefaults() {
         setDefault("log-level", "INFO");
         setDefault("token", "DISCORD_BOT_TOKEN");
         setDefault("shards", 1);
         setDefault("online-status", "online");
         setDefault("owner", Collector.of(0L).asList());
-
-        this.file = Document.readFile(JsonConfig.class, config);
-        load();
     }
 
-    public void load() {
+    protected void load() {
         for (String key : defaults.keySet()) {
             if (!file.isSet(key)) {
                 file.set(key, getDefault(key));
@@ -41,12 +43,12 @@ public class BotConfig {
         file.saveSafely();
     }
 
-    public BotConfig setDefault(String key, Object value) {
+    public BotConfig setDefault(@NotNull String key, @Nullable Object value) {
         defaults.put(key, value);
         return this;
     }
 
-    public Object getDefault(String key) {
+    public Object getDefault(@NotNull String key) {
         return defaults.get(key);
     }
 
@@ -70,6 +72,7 @@ public class BotConfig {
         return OnlineStatus.fromKey(file.getString("online-status"));
     }
 
+    @NotNull
     public Document getDocument() {
         return this.file;
     }

@@ -40,31 +40,35 @@ public interface Config extends Writeable {
      */
     static Config create(@NotNull Class<? extends Config> configClass) {
         try {
-            return Reflection.invokeConstructor(configClass);
-        } catch (Exception e) {
-            throw new UnsupportedOperationException("Unable to create empty instance of " + configClass.getName() + ".");
+            return (Config) Reflection.getConstructor(configClass).invoke();
+        } catch (Throwable e) {
+            throw new UnsupportedOperationException("Unable to create empty instance of " + configClass.getName() + ".", e);
         }
     }
 
     /**
-     * Reads the file at the given path and creates an instance of the given file type.
+     * Reads the file at the given {@link Path} and creates an instance of the given file type.
      *
      * @param configClass the class of the Config to create an instance of
      * @param path the path to the file to read
      *
      * @return an instance of the given file type
+     *
+     * @see #readPath(Class, Path)
      */
     static Config readPath(@NotNull Class<? extends Config> configClass, @NotNull String path) {
         return readPath(configClass, Paths.get(path));
     }
 
     /**
-     * Reads the file at the given path and creates an instance of the given file type.
+     * Reads the file at the given {@link Path} and creates an instance of the given file type.
      *
      * @param configClass the class of the Config to create an instance of
      * @param path the path to the file to read
      *
      * @return an instance of the given file type
+     *
+     * @see #readFile(Class, File)
      */
     static Config readPath(@NotNull Class<? extends Config> configClass, @NotNull Path path) {
         return readFile(configClass, path.toFile());
@@ -77,12 +81,32 @@ public interface Config extends Writeable {
      * @param file the file to read
      *
      * @return an instance of the given file type
+     *
+     * @throws UnsupportedOperationException if the config cannot read files
      */
     static Config readFile(@NotNull Class<? extends Config> configClass, @NotNull File file) {
         try {
-            return Reflection.invokeConstructor(configClass, file);
-        } catch (Exception e) {
-            throw new UnsupportedOperationException("Unable to create instance of " + configClass.getName() + " using file.");
+            return (Config) Reflection.getConstructor(configClass, File.class).invoke(file);
+        } catch (Throwable e) {
+            throw new UnsupportedOperationException("Unable to create instance of " + configClass.getName() + " using file.", e);
+        }
+    }
+
+    /**
+     * Reads the {@link InputStream} and creates an instance of the given file type.
+     *
+     * @param configClass the class of the Config to create an instance of
+     * @param stream the input stream to read
+     *
+     * @return an instance of the given file type
+     *
+     * @throws UnsupportedOperationException if the config cannot read the InputStreams
+     */
+    static @NotNull Config readInputStream(@NotNull Class<? extends Config> configClass, @NotNull InputStream stream) {
+        try {
+            return (Config) Reflection.getConstructor(configClass, InputStream.class).invoke(stream);
+        } catch (Throwable e) {
+            throw new UnsupportedOperationException("Unable to create instance of " + configClass.getName() + " using InputStream.", e);
         }
     }
 
@@ -93,20 +117,14 @@ public interface Config extends Writeable {
      * @param read the object to read
      *
      * @return an instance of the given file type
+     *
+     * @throws UnsupportedOperationException if the config cannot read the object
      */
     static Config readObject(@NotNull Class<? extends Config> configClass, @NotNull Object read) {
         try {
-            return Reflection.invokeConstructor(configClass, read);
-        } catch (Exception e) {
-            throw new UnsupportedOperationException("Unable to create instance of " + configClass.getName() + " using object.");
-        }
-    }
-
-    static @NotNull Config readInputStream(@NotNull Class<? extends Config> configClass, @NotNull InputStream stream) {
-        try {
-            return Reflection.invokeConstructor(configClass, stream);
-        } catch (Exception e) {
-            throw new UnsupportedOperationException("Unable to create instance of " + configClass.getName() + " using InputStream.");
+            return (Config) Reflection.getConstructor(configClass, Object.class).invoke(read);
+        } catch (Throwable e) {
+            throw new UnsupportedOperationException("Unable to create instance of " + configClass.getName() + " using object.", e);
         }
     }
 

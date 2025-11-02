@@ -7,8 +7,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Spoocy99 | GitHub: Spoocy99
@@ -59,6 +58,24 @@ public class InheritedScannerTest {
     }
 
     @Test
+    void testLookupConstructor() {
+        Constructor<?> notFoundConstructor = scanner.lookupConstructor(DerivedTestClass.class, Integer.class);
+        assertNull(notFoundConstructor);
+
+        Constructor<?> constructor = scanner.lookupConstructor(DerivedTestClass.class);
+        assertNotNull(constructor);
+
+        Constructor<?> publicConstructor = scanner.lookupConstructor(DerivedTestClass.class, String.class);
+        assertNotNull(publicConstructor);
+
+        Constructor<?> protectedConstructor = scanner.lookupConstructor(DerivedTestClass.class, Runnable.class);
+        assertNotNull(protectedConstructor);
+
+        Constructor<?> privateConstructor = scanner.lookupConstructor(DerivedTestClass.class, String.class, String.class);
+        assertNotNull(privateConstructor);
+    }
+
+    @Test
     void testLookupMethods() {
         Set<Method> methods = scanner.lookupMethods(DerivedTestClass.class, (method, source) -> method.getName().equals("publicMethod"));
         assertFalse(methods.isEmpty());
@@ -79,8 +96,14 @@ public class InheritedScannerTest {
 
     public static class DerivedTestClass extends BaseTestClass {
         public String derivedField;
+
         public DerivedTestClass() {}
         public DerivedTestClass(String s) {}
+
+        protected DerivedTestClass(Runnable runnable) {}
+
+        private DerivedTestClass(String s1, String s2) {}
+
         public void derivedMethod() {}
     }
 

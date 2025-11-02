@@ -43,10 +43,10 @@ public abstract class DiscordBot {
 
     private static final ILogger LOGGER = ILogger.forThisClass();
 
-    private static DiscordBot instance;
+    private static DiscordBot GLOBAL_INSTANCE;
 
     public static <T extends DiscordBot> T getInstance() {
-        return (T) instance;
+        return (T) GLOBAL_INSTANCE;
     }
 
     @Getter
@@ -69,10 +69,10 @@ public abstract class DiscordBot {
     private final ScheduledExecutorService scheduler = Scheduler.newScheduledThreadPool(1);
 
     public DiscordBot(@NotNull BotConfig config, @NotNull BotBuilder builder) {
-        if (instance != null) {
+        if (GLOBAL_INSTANCE != null) {
             throw new IllegalStateException("Bot is already initialized!");
         }
-        instance = this;
+        GLOBAL_INSTANCE = this;
 
         this.startupTime = System.currentTimeMillis();
         this.config = config;

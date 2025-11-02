@@ -210,14 +210,14 @@ public class FieldBuilder {
     }
 
     /**
-     * Sets the required type for the field, including its super types.
+     * Sets the required type for the field exactly.
      *
      * @param type The type.
      *
      * @return The current {@link FieldBuilder} instance.
      */
     public FieldBuilder typeExact(@NotNull Class<?> type) {
-        this.type = new ClassMatcher(type, ClassMatcher.MatchType.MATCH_SUPER);
+        this.type = new ClassMatcher(type, ClassMatcher.MatchType.MATCH_EXACT);
         return this;
     }
 
