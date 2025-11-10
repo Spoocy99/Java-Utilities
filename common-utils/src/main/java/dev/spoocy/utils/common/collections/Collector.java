@@ -4,8 +4,10 @@ import com.google.common.collect.ImmutableList;
 import dev.spoocy.utils.common.misc.SeededRandom;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
@@ -269,22 +271,31 @@ public class Collector<T> implements Iterable<T>, Cloneable {
         return ImmutableList.copyOf(this.list);
     }
 
-    public T[] asArray() {
-        return asArray((T[]) new Object[list.size()]);
+    public Object[] asArray() {
+        return this.list.toArray();
     }
 
-    public T[] asArray(T[] array) {
-        return list.toArray(array);
+    public T[] asArray(@NotNull Class<T> type) {
+        T[] array = (T[]) Array.newInstance(type, list.size());
+        return this.list.toArray(array);
+    }
+
+    public T[] asArray(@NotNull T[] array) {
+        return this.list.toArray(array);
+    }
+
+    public T[] asArray(@NotNull IntFunction<T[]> generator) {
+        return this.list.toArray(generator);
     }
 
     public int[] asIntArray() {
-        return list.stream()
+        return this.list.stream()
                 .mapToInt(value -> (int) value)
                 .toArray();
     }
 
     public Stream<T> stream() {
-        return list.stream();
+        return this.list.stream();
     }
 
     public static <T> Collector<T> flatten(@NotNull Collection<? extends Collection<T>> collections) {

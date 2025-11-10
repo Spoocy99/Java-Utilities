@@ -2,13 +2,17 @@ package dev.spoocy.utils.config.serializer;
 
 import dev.spoocy.utils.common.cache.Cache;
 import dev.spoocy.utils.common.cache.Caches;
+import dev.spoocy.utils.config.serializer.impl.AtomicsSerializer;
+import dev.spoocy.utils.config.serializer.impl.DurationSerializer;
+import dev.spoocy.utils.config.serializer.impl.EnumSerializer;
+import dev.spoocy.utils.config.serializer.impl.JavaSerializer;
 import dev.spoocy.utils.reflection.Reflection;
 import dev.spoocy.utils.reflection.accessor.ClassAccess;
 import dev.spoocy.utils.reflection.accessor.MethodAccessor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.sql.Ref;
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,6 +26,13 @@ public class ConfigSerializer {
     private static final Map<Class<?>, Serializer<?>> DIRECT_SERIALIZERS = new ConcurrentHashMap<>();
     private static final Map<String, Class<? extends ConfigSerializable>> NAMES = new ConcurrentHashMap<>();
 
+    static {
+        registerSerializer(java.time.Duration.class, DurationSerializer.INSTANCE);
+        registerSerializer(java.util.concurrent.atomic.AtomicInteger.class, new AtomicsSerializer<>(java.util.concurrent.atomic.AtomicInteger.class));
+        registerSerializer(java.util.concurrent.atomic.AtomicLong.class, new AtomicsSerializer<>(java.util.concurrent.atomic.AtomicLong.class));
+        registerSerializer(java.util.concurrent.atomic.AtomicBoolean.class, new AtomicsSerializer<>(java.util.concurrent.atomic.AtomicBoolean.class));
+    }
+
     /**
      * Singleton instance of ClassSerializer for handling a specific class type.
      *
@@ -29,6 +40,17 @@ public class ConfigSerializer {
      */
     public static <T> void registerSerializer(@NotNull Class<T> clazz, @NotNull Serializer<T> serializer) {
         DIRECT_SERIALIZERS.put(clazz, serializer);
+    }
+
+    /**
+     * Register a Java {@link Serializable} class for serialization/deserialization using Java's built-in serialization.
+     *
+     * @param clazz the class to register
+     *
+     * @see JavaSerializer
+     */
+    public static <T extends Serializable> void useJavaSerializer(@NotNull Class<T> clazz) {
+        registerSerializer(clazz, JavaSerializer.create(clazz));
     }
 
     /**
@@ -214,52 +236,5 @@ public class ConfigSerializer {
             return (O) result;
         }
     }
-
-    /**
-     * Serializer implementation for Enum types.
-     */
-    public static class EnumSerializer<O extends Enum<O>> implements Serializer<O> {
-
-        private static final Cache<Class<?>, EnumSerializer<?>> CLASS_CACHE = Caches.createLRUCache(50);
-
-        public static <O extends Enum<O>> EnumSerializer<O> create(@NotNull Class<O> clazz) {
-            return (EnumSerializer<O>) CLASS_CACHE.computeIfAbsent(clazz, c -> new EnumSerializer<>(clazz));
-        }
-
-        private final Class<O> clazz;
-
-        private EnumSerializer(@NotNull Class<O> clazz) {
-            this.clazz = clazz;
-        }
-
-        @Override
-        public @NotNull Map<String, Object> serialize(@NotNull O object) {
-            try {
-                Map<String, Object> map = new HashMap<>();
-                map.put("name", object.name());
-                map.put(SERIALIZED_TYPE_KEY, object.getClass().getName());
-                return map;
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Failed to serialize object of type: " + object.getClass().getName(), e);
-            }
-        }
-
-        @Override
-        public @NotNull O deserialize(@NotNull Map<String, Object> map) {
-            Object nameObj = map.get("name");
-            if (!(nameObj instanceof String)) {
-                throw new IllegalArgumentException("Serialized enum name is missing or not a string!");
-            }
-
-            String name = (String) nameObj;
-            try {
-                return Enum.valueOf(clazz, name);
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("No enum constant " + clazz.getName() + "." + name, e);
-            }
-        }
-    }
-
-
 
 }

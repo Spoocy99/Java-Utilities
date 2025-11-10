@@ -117,10 +117,14 @@ public abstract class AbstractConfig implements Config {
         if(serializer != null) {
             Config config = getSection(path);
 
-            try {
-                return serializer.deserialize(config.values());
-            } catch (Throwable e) {
-                ILogger.forThisClass().error("Failed to deserialize object of type " + clazz + " at path " + path, e);
+            if(!config.keys().isEmpty()) {
+
+                try {
+                    return serializer.deserialize(config.values());
+                } catch (Throwable e) {
+                    ILogger.forThisClass().error("Failed to deserialize object of type " + clazz + " at path " + path, e);
+                }
+
             }
 
         }
