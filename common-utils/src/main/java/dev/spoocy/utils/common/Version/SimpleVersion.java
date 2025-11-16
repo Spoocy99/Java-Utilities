@@ -1,5 +1,6 @@
 package dev.spoocy.utils.common.Version;
 
+import dev.spoocy.utils.common.text.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -46,7 +47,7 @@ public class SimpleVersion implements Version {
 
     @Override
     public boolean isPreRelease() {
-        return this.preReleaseIdentifier != null && !this.preReleaseIdentifier.isEmpty();
+        return !StringUtils.isNullOrEmpty(this.preReleaseIdentifier);
     }
 
     @Override

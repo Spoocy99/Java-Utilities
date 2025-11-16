@@ -1,6 +1,7 @@
 package dev.spoocy.utils.common.Version;
 
 import com.google.common.collect.ComparisonChain;
+import dev.spoocy.utils.common.text.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -160,11 +161,11 @@ public interface Version extends Comparable<Version>, Serializable {
 
     default String formatFull() {
         StringBuilder sb = new StringBuilder(format());
-        if (isPreRelease()) {
-            sb.append("-").append(getPreReleaseIdentifier());
+        if (!StringUtils.isNullOrEmpty(this.getPreReleaseIdentifier())) {
+            sb.append("-").append(this.getPreReleaseIdentifier());
         }
-        if (!getBuildMetaData().isEmpty()) {
-            sb.append("+").append(getBuildMetaData());
+        if (!StringUtils.isNullOrEmpty(this.getBuildMetaData())) {
+            sb.append("+").append(this.getBuildMetaData());
         }
         return sb.toString();
     }

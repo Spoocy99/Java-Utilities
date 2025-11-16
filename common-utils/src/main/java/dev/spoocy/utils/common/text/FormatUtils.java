@@ -19,6 +19,10 @@ public class FormatUtils {
         return stringBuilder.toString();
     }
 
+    public static String twoDigitFormat(int number) {
+        return String.format("%02d", number);
+    }
+
     public static <N extends Number> String formatNumber(@NotNull N number) {
         if (number instanceof Integer || number instanceof Short || number instanceof Byte) {
             return String.format("%,d", number.intValue());
