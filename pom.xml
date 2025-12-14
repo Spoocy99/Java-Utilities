@@ -12,7 +12,6 @@
     <modules>
         <module>bukkit-utils</module>
         <module>common-utils</module>
-        <module>jda-utils</module>
         <module>config-utils</module>
         <module>reflection-utils</module>
         <module>security-utils</module>

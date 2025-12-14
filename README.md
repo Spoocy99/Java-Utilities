@@ -59,12 +59,3 @@ Bukkit Utils:
   <version>VERSION</version>
 </dependency>
 ```
-
-JDA Utils:
-```xml
-<dependency>
-    <groupId>dev.spoocy.utils</groupId>
-    <artifactId>jda-utils</artifactId>
-    <version>VERSION</version>
-</dependency>
-```
