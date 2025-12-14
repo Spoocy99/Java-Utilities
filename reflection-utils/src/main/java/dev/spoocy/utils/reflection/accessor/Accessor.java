@@ -50,7 +50,7 @@ public class Accessor {
 
             return new ReflectionConstructor(constructor, generified);
         } catch (IllegalAccessException exception) {
-            throw new IllegalStateException("Cannot access constructor " + constructor);
+            throw new IllegalStateException("Cannot access constructor " + constructor, exception);
         }
     }
 
@@ -63,7 +63,7 @@ public class Accessor {
             MethodHandle generified = toGeneric(unreflected, staticMethod, false);
             return new ReflectionMethod(method, generified, staticMethod);
         } catch (IllegalAccessException exception) {
-            throw new IllegalStateException("Cannot access method " + method);
+            throw new IllegalStateException("Cannot access method " + method, exception);
         }
     }
 
@@ -77,7 +77,7 @@ public class Accessor {
 
             return new ReflectionField(field, setter, getter, isStatic);
         } catch (Exception exception) {
-            throw new IllegalStateException("Cannot access field " + field);
+            throw new IllegalStateException("Cannot access field " + field, exception);
         }
     }
 

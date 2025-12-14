@@ -3,6 +3,7 @@ package dev.spoocy.utils.reflection.accessor.impl;
 import dev.spoocy.utils.common.log.ILogger;
 import dev.spoocy.utils.reflection.accessor.FieldAccessor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Field;
@@ -18,7 +19,7 @@ public class ReflectionField implements FieldAccessor {
     private final MethodHandle getter;
     private final boolean isStatic;
 
-    public ReflectionField(@NotNull Field field, @NotNull MethodHandle setter, @NotNull MethodHandle getter, boolean isStatic) {
+    public ReflectionField(@NotNull Field field, @Nullable MethodHandle setter, @Nullable MethodHandle getter, boolean isStatic) {
         this.field = field;
         this.setter = setter;
         this.getter = getter;

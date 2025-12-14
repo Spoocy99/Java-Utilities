@@ -35,7 +35,7 @@ public class MethodBuilder {
     private Pattern name;
     private int requiredModifiers;
     private int excludedModifiers;
-    private IMatcher<Class<?>> returnType = ClassMatcher.MATCH_ALL;
+    private IMatcher<Class<?>> returnType;
 
     private int parameterCount;
     private final List<ParameterMatcher> parameters;
@@ -43,6 +43,11 @@ public class MethodBuilder {
     private final List<Class<? extends Annotation>> excludedAnnotations;
 
     private MethodBuilder() {
+        this.name = null;
+        this.requiredModifiers = 0;
+        this.excludedModifiers = 0;
+        this.returnType = ClassMatcher.MATCH_ALL;
+        this.parameterCount = -1;
         this.parameters = new ArrayList<>();
         this.annotations = new ArrayList<>();
         this.excludedAnnotations = new ArrayList<>();
@@ -223,8 +228,8 @@ public class MethodBuilder {
      *
      * @return The current {@link MethodBuilder} instance.
      */
-    public MethodBuilder parameterType(int index, Class<?> type) {
-        parameters.add(
+    public MethodBuilder parameterType(int index, @Nullable Class<?> type) {
+        this.parameters.add(
                 new ParameterMatcher(new ClassMatcher(type, ClassMatcher.MatchType.MATCH_EXACT), index)
         );
         return this;

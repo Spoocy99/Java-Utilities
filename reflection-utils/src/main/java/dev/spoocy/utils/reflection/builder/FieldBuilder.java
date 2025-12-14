@@ -36,13 +36,17 @@ public class FieldBuilder {
     private Pattern name;
     private int requiredModifiers;
     private int excludedModifiers;
-    private IMatcher<Class<?>> type = ClassMatcher.MATCH_ALL;
+    private IMatcher<Class<?>> type;
 
     private final List<GenericType> genericTypes;
     private final List<Class<? extends Annotation>> annotations;
     private final List<Class<? extends Annotation>> excludedAnnotations;
 
     private FieldBuilder() {
+        this.name = null;
+        this.requiredModifiers = 0;
+        this.excludedModifiers = 0;
+        this.type = ClassMatcher.MATCH_ALL;
         this.annotations = new ArrayList<>();
         this.excludedAnnotations = new ArrayList<>();
         this.genericTypes = new ArrayList<>();

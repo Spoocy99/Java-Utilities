@@ -31,7 +31,7 @@ public final class MethodMatcher implements IMatcher<Method> {
                 && typeMatches(value.getReturnType())
                 && requiredAnnotationsMatch(value.getDeclaredAnnotations())
                 && excludedAnnotationsMatch(value.getDeclaredAnnotations())
-                && data.getParameterCount() == parameters.length
+                && matchParameterAmount(parameters.length)
                 && matchParameters(parameters, value, data.getParameters())
                 ;
     }
@@ -68,7 +68,7 @@ public final class MethodMatcher implements IMatcher<Method> {
             if (!found) return false;
         }
 
-        return false;
+        return true;
     }
 
     private boolean excludedAnnotationsMatch(@NotNull Annotation[] annotations) {
@@ -86,6 +86,15 @@ public final class MethodMatcher implements IMatcher<Method> {
         }
 
         return true;
+    }
+
+    private boolean matchParameterAmount(int parameterCount) {
+        int requiredParameterCount = this.data.getParameterCount();
+
+        // No parameter count to match against
+        if (requiredParameterCount < 0) return true;
+
+        return requiredParameterCount == parameterCount;
     }
 
     private boolean matchParameters(@NotNull Class<?>[] types, @NotNull Method parent, @NotNull List<ParameterMatcher> matchers) {
