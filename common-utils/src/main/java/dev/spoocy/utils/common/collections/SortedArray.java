@@ -1,10 +1,9 @@
 package dev.spoocy.utils.common.collections;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Iterables;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.Objects;
 
 /**
  * @author Spoocy99 | GitHub: Spoocy99
@@ -18,7 +17,7 @@ public class SortedArray<T extends Comparable<T>> implements Collection<T> {
 		this.list = new ArrayList<>();
 	}
 
-	public SortedArray(Collection<T> wrapped) {
+	public SortedArray(@NotNull Collection<T> wrapped) {
 		this.list = new ArrayList<>(wrapped);
 		Collections.sort(list);
 	}
@@ -34,7 +33,7 @@ public class SortedArray<T extends Comparable<T>> implements Collection<T> {
 
     @Override
 	public Iterator<T> iterator() {
-		return Iterables.unmodifiableIterable(list).iterator();
+        return list.iterator();
 	}
 
     @Override
@@ -69,7 +68,7 @@ public class SortedArray<T extends Comparable<T>> implements Collection<T> {
 		boolean result = false;
 
 		for (T element : list) {
-			if (!Objects.equal(value, element)) {
+			if (!Objects.equals(value, element)) {
 				copy.add(element);
 			} else {
 				result = true;

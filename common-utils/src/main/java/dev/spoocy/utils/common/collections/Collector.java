@@ -1,6 +1,5 @@
 package dev.spoocy.utils.common.collections;
 
-import com.google.common.collect.ImmutableList;
 import dev.spoocy.utils.common.misc.SeededRandom;
 import org.jetbrains.annotations.NotNull;
 
@@ -268,7 +267,7 @@ public class Collector<T> implements Iterable<T>, Cloneable {
     }
 
     public List<T> asImmutableList() {
-        return ImmutableList.copyOf(this.list);
+        return List.copyOf(this.list);
     }
 
     public Object[] asArray() {

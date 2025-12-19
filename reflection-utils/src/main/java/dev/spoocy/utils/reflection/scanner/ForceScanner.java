@@ -1,6 +1,5 @@
 package dev.spoocy.utils.reflection.scanner;
 
-import com.google.common.collect.Sets;
 import dev.spoocy.utils.common.misc.ListUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

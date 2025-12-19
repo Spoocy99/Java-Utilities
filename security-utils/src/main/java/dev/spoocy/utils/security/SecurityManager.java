@@ -8,7 +8,6 @@ import dev.spoocy.utils.security.report.TestContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnegative;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -113,7 +112,7 @@ public class SecurityManager {
                 @NotNull MethodAccessor test,
                 @NotNull String name,
                 @NotNull SecurityTest.Stage[] stage,
-                @Nonnegative int priority,
+                int priority,
                 @Nullable Object instance,
                 @NotNull CheckResult resultOnException
         ) {

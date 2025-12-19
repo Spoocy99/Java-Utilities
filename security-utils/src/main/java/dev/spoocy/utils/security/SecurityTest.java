@@ -2,7 +2,6 @@ package dev.spoocy.utils.security;
 
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnegative;
 import java.lang.annotation.*;
 
 /**
@@ -17,7 +16,6 @@ public @interface SecurityTest {
     @NotNull
     String value();
 
-    @Nonnegative
     int priority() default 50;
 
     @NotNull

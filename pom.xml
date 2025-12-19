@@ -6,7 +6,7 @@
 
     <groupId>dev.spoocy.utils</groupId>
     <artifactId>root</artifactId>
-    <version>1.0.9</version>
+    <version>1.0.10</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -149,18 +149,6 @@
         <dependencies>
 
             <dependency>
-                <groupId>org.jetbrains</groupId>
-                <artifactId>annotations</artifactId>
-                <version>24.0.1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>1.18.30</version>
-            </dependency>
-
-            <dependency>
                 <groupId>dev.spoocy.utils</groupId>
                 <artifactId>bukkit-utils</artifactId>
                 <version>${project.version}</version>
@@ -188,6 +176,30 @@
                 <groupId>dev.spoocy.utils</groupId>
                 <artifactId>reflection-utils</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jetbrains</groupId>
+                <artifactId>annotations</artifactId>
+                <version>26.0.2-1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.42</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>20250517</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>2.0.17</version>
             </dependency>
 
         </dependencies>

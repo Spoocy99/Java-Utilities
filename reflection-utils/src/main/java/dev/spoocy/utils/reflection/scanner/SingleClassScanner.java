@@ -1,12 +1,13 @@
 package dev.spoocy.utils.reflection.scanner;
 
-import com.google.common.collect.Sets;
 import dev.spoocy.utils.common.collections.Collector;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -17,7 +18,7 @@ public abstract class SingleClassScanner implements Scanner {
 
     @Override
     public @NotNull Set<Class<?>> classes(@NotNull Class<?> source) {
-        return Sets.newHashSet(source);
+        return new HashSet<>(List.of(source));
     }
 
     @Override

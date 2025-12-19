@@ -1,6 +1,6 @@
 package dev.spoocy.utils.reflection.accessor.impl;
 
-import com.google.common.base.Preconditions;
+import dev.spoocy.utils.common.misc.Args;
 import dev.spoocy.utils.reflection.ReflectionBuilder;
 import dev.spoocy.utils.reflection.ReflectionException;
 import dev.spoocy.utils.reflection.accessor.ClassAccess;
@@ -65,8 +65,8 @@ public class ReflectionBuilderImpl implements ReflectionBuilder {
     }
 
     private void validate() {
-        Preconditions.checkNotNull(targetClass, "Target class must be set.");
-        Preconditions.checkNotNull(scanner, "Scanner must be set.");
+        Args.requireNotNull(targetClass, "Target class must be set.");
+        Args.requireNotNull(scanner, "Scanner must be set.");
     }
 
 }

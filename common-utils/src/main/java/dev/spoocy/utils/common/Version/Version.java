@@ -1,6 +1,6 @@
 package dev.spoocy.utils.common.Version;
 
-import com.google.common.collect.ComparisonChain;
+import dev.spoocy.utils.common.collections.ComparisonChain;
 import dev.spoocy.utils.common.text.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
