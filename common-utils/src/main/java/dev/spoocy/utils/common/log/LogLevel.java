@@ -1,7 +1,5 @@
 package dev.spoocy.utils.common.log;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Level;
@@ -10,8 +8,6 @@ import java.util.logging.Level;
  * @author Spoocy99 | GitHub: Spoocy99
  */
 
-@Getter
-@AllArgsConstructor
 public enum LogLevel {
     ALL(0, "ALL", Level.ALL),
     TRACE(10, "TRACE", Level.FINER),
@@ -25,6 +21,26 @@ public enum LogLevel {
     private final int level;
     private final String name;
     private final Level javaLevel;
+
+    LogLevel(int level, String name, @NotNull Level javaLevel) {
+        this.level = level;
+        this.name = name;
+        this.javaLevel = javaLevel;
+    }
+
+    public int getLevel() {
+        return this.level;
+    }
+
+    @NotNull
+    public String getName() {
+        return name;
+    }
+
+    @NotNull
+    public Level getJavaLevel() {
+        return this.javaLevel;
+    }
 
     public boolean covers(@NotNull LogLevel level) {
         return this.getLevel() <= level.getLevel();

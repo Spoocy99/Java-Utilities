@@ -1,5 +1,6 @@
 package dev.spoocy.utils.bukkit.serializers;
 
+import dev.spoocy.utils.bukkit.biz.source_code.base64Coder.Base64Coder;
 import dev.spoocy.utils.common.exceptions.WrappedException;
 import dev.spoocy.utils.config.serializer.Serializer;
 import org.bukkit.Bukkit;
@@ -8,7 +9,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.jetbrains.annotations.NotNull;
-import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -57,7 +57,8 @@ public class InventorySerializer implements Serializer<Inventory> {
 
         try {
             String base64 = (String) map.get("base64");
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(base64));
+            byte[] data = Base64Coder.decode(base64);
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
             BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
             Inventory inventory = Bukkit.getServer().createInventory(null, dataInput.readInt());
 

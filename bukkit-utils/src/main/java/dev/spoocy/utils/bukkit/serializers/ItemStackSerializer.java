@@ -1,12 +1,12 @@
 package dev.spoocy.utils.bukkit.serializers;
 
+import dev.spoocy.utils.bukkit.biz.source_code.base64Coder.Base64Coder;
 import dev.spoocy.utils.common.exceptions.WrappedException;
 import dev.spoocy.utils.config.serializer.Serializer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.jetbrains.annotations.NotNull;
-import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

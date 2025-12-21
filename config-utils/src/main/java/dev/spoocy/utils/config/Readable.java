@@ -1,6 +1,6 @@
 package dev.spoocy.utils.config;
 
-import dev.spoocy.utils.common.Version.Version;
+import dev.spoocy.utils.common.version.Version;
 import dev.spoocy.utils.config.misc.SectionList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

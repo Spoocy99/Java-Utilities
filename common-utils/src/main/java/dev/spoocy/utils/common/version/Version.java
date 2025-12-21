@@ -1,4 +1,4 @@
-package dev.spoocy.utils.common.Version;
+package dev.spoocy.utils.common.version;
 
 import dev.spoocy.utils.common.collections.ComparisonChain;
 import dev.spoocy.utils.common.text.StringUtils;

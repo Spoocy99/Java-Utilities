@@ -1,6 +1,6 @@
 package dev.spoocy.utils.config;
 
-import dev.spoocy.utils.common.Version.Version;
+import dev.spoocy.utils.common.version.Version;
 import dev.spoocy.utils.common.log.ILogger;
 import dev.spoocy.utils.common.scheduler.Scheduler;
 import dev.spoocy.utils.common.scheduler.task.Task;

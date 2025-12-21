@@ -1,4 +1,4 @@
-import dev.spoocy.utils.common.Version.Version;
+import dev.spoocy.utils.common.version.Version;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;

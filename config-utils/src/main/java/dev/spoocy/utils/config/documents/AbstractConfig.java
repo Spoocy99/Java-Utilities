@@ -1,6 +1,6 @@
 package dev.spoocy.utils.config.documents;
 
-import dev.spoocy.utils.common.Version.Version;
+import dev.spoocy.utils.common.version.Version;
 import dev.spoocy.utils.common.log.ILogger;
 import dev.spoocy.utils.common.misc.NumberConversion;
 import dev.spoocy.utils.config.Config;

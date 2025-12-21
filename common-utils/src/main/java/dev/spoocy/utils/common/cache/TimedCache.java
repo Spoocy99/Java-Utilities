@@ -38,11 +38,23 @@ public class TimedCache<K, V> implements Cache<K, V> {
         return entry;
     }
 
-    @Getter
-    @AllArgsConstructor
     private static class CacheEntry<V> {
         final @Nullable V value;
         final long expiryTime;
+
+        private CacheEntry(@Nullable V value, long expiryTime) {
+            this.value = value;
+            this.expiryTime = expiryTime;
+        }
+
+        @Nullable
+        public V getValue() {
+            return value;
+        }
+
+        public long getExpiryTime() {
+            return expiryTime;
+        }
     }
 
     @Override

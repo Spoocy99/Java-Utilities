@@ -6,6 +6,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.util.UUIDTypeAdapter;
+import dev.spoocy.utils.bukkit.biz.source_code.base64Coder.Base64Coder;
 import dev.spoocy.utils.bukkit.serializers.GameProfileSerializer;
 import dev.spoocy.utils.common.cache.Cache;
 import dev.spoocy.utils.common.cache.Caches;
@@ -13,7 +14,6 @@ import dev.spoocy.utils.common.log.ILogger;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -118,7 +118,7 @@ public class GameProfileBuilder {
         profile.getProperties().put("textures", new Property(
                 "textures",
                 Base64Coder.encodeString(
-                        String.format(capePresent ? JSON_CAPE : JSON_SKIN, args.toArray(new Object[0]))
+                        String.format(capePresent ? JSON_CAPE : JSON_SKIN, args.toArray(Object[]::new))
                 )
         ));
         return profile;
