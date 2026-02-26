@@ -1,4 +1,4 @@
-package dev.spoocy.utils.config.documents;
+package dev.spoocy.utils.config.components;
 
 import dev.spoocy.utils.common.version.Version;
 import dev.spoocy.utils.common.log.ILogger;

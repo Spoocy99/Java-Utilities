@@ -1,8 +1,6 @@
-package dev.spoocy.utils.config.misc;
+package dev.spoocy.utils.config;
 
-import dev.spoocy.utils.config.Config;
-import dev.spoocy.utils.config.Document;
-import dev.spoocy.utils.config.documents.JsonConfig;
+import dev.spoocy.utils.config.types.JsonConfig;
 import dev.spoocy.utils.common.misc.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -80,6 +78,5 @@ public final class FileManager {
     public static void registerType(@NotNull String extension, Class<? extends Config> documentClass) {
         types.put(extension.toLowerCase(), documentClass);
     }
-
 
 }

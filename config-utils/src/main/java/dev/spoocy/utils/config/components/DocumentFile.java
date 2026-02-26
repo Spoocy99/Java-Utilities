@@ -1,4 +1,4 @@
-package dev.spoocy.utils.config.documents;
+package dev.spoocy.utils.config.components;
 
 import dev.spoocy.utils.config.Config;
 import dev.spoocy.utils.config.Document;
@@ -11,7 +11,7 @@ import java.nio.file.Path;
  * @author Spoocy99 | GitHub: Spoocy99
  */
 
-public class DocumentFile implements Document {
+public class DocumentFile extends AbstractDocument {
 
     private Config document;
     private final File file;

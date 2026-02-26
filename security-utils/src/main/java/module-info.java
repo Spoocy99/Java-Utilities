@@ -3,8 +3,6 @@
  */
 
 module dev.spoocy.utils.security {
-    requires static lombok;
-
     requires org.jetbrains.annotations;
     requires dev.spoocy.utils.common;
     requires dev.spoocy.utils.reflection;

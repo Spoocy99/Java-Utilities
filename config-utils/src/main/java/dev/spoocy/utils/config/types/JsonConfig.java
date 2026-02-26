@@ -1,6 +1,7 @@
-package dev.spoocy.utils.config.documents;
+package dev.spoocy.utils.config.types;
 
 import dev.spoocy.utils.config.Config;
+import dev.spoocy.utils.config.components.AbstractConfig;
 import dev.spoocy.utils.config.misc.SectionList;
 import dev.spoocy.utils.common.log.ILogger;
 import dev.spoocy.utils.common.text.StringUtils;

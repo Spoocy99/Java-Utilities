@@ -11,7 +11,6 @@ import dev.spoocy.utils.bukkit.serializers.GameProfileSerializer;
 import dev.spoocy.utils.common.cache.Cache;
 import dev.spoocy.utils.common.cache.Caches;
 import dev.spoocy.utils.common.log.ILogger;
-import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -127,17 +126,26 @@ public class GameProfileBuilder {
     private static class CachedGameProfile {
 
         private final long timestamp;
-        @Getter
         private final GameProfile profile;
 
-        public CachedGameProfile(GameProfile profile) {
+        public CachedGameProfile(@NotNull GameProfile profile) {
             this.timestamp = System.currentTimeMillis();
             this.profile = profile;
+        }
+
+        @NotNull
+        public GameProfile getProfile() {
+            return this.profile;
+        }
+
+        public long getTimestamp() {
+            return this.timestamp;
         }
 
         public boolean isValid(long max) {
             return max < 0 || (System.currentTimeMillis() - timestamp) < max;
         }
+
     }
 
 }

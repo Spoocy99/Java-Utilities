@@ -40,7 +40,6 @@ public interface Serializer<O> {
     @NotNull
     O deserialize(@NotNull Map<String, Object> map);
 
-
     @Nullable
     default O deserializeSafely(@NotNull Map<String, Object> map) {
         try {

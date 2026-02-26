@@ -1,6 +1,5 @@
 package dev.spoocy.utils.reflection.matcher;
 
-import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -8,7 +7,6 @@ import org.jetbrains.annotations.Nullable;
  * @author Spoocy99 | GitHub: Spoocy99
  */
 
-@Getter
 public final class ClassMatcher implements IMatcher<Class<?>> {
 
     public static final ClassMatcher MATCH_ALL = new ClassMatcher(null, MatchType.MATCH_SUPER);
@@ -19,6 +17,16 @@ public final class ClassMatcher implements IMatcher<Class<?>> {
     public ClassMatcher(@Nullable Class<?> clazz, @NotNull MatchType type) {
         this.clazz = clazz;
         this.match = type;
+    }
+
+    @Nullable
+    public Class<?> getClazz() {
+        return this.clazz;
+    }
+
+    @NotNull
+    public MatchType getMatch() {
+        return this.match;
     }
 
     @Override

@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
  * @author Spoocy99 | GitHub: Spoocy99
  */
 
-public interface Writeable extends Readable {
+public interface Writeable extends Readable, Commentable {
 
     void setReadOnly();
 
@@ -31,6 +31,5 @@ public interface Writeable extends Readable {
 
     @Override
     SectionList<? extends Writeable> getSectionArray(@NotNull String path);
-
 
 }

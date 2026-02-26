@@ -1,7 +1,5 @@
 package dev.spoocy.utils.common.cache;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

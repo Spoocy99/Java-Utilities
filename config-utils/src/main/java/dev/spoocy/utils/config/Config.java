@@ -2,10 +2,11 @@ package dev.spoocy.utils.config;
 
 import dev.spoocy.utils.common.log.ILogger;
 import dev.spoocy.utils.common.misc.FileUtils;
-import dev.spoocy.utils.config.documents.DocumentFile;
-import dev.spoocy.utils.config.documents.JsonConfig;
+import dev.spoocy.utils.config.components.DocumentFile;
+import dev.spoocy.utils.config.types.JsonConfig;
 import dev.spoocy.utils.config.misc.SectionList;
 import dev.spoocy.utils.reflection.Reflection;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -159,7 +160,7 @@ public interface Config extends Writeable {
      *
      * @return the new WatchedFile
      */
-    default Document setPath(@NotNull File file) {
+    default Document withPath(@NotNull File file) {
         return createDocument(this, file);
     }
 
@@ -170,7 +171,8 @@ public interface Config extends Writeable {
      *
      * @return the new WatchedFile
      */
-    default Document setPath(@NotNull Path path) {
+    @CheckReturnValue
+    default Document withPath(@NotNull Path path) {
         return createDocument(this, path);
     }
 
@@ -251,17 +253,6 @@ public interface Config extends Writeable {
             ILogger.forThisClass().error("An error occurred while saving config at " + file, e);
             return false;
         }
-    }
-
-    default boolean isCommentable() {
-        return this instanceof Commentable;
-    }
-
-    default Commentable asCommentable() {
-        if(!isCommentable()) {
-            throw new UnsupportedOperationException("This config is not commentable.");
-        }
-        return (Commentable) this;
     }
 
     /**

@@ -22,11 +22,11 @@ import java.util.*;
 public interface Document extends Config {
 
     static Document readPath(@NotNull Class<? extends Config> documentClass, @NotNull Path path) {
-		return Config.readPath(documentClass, path).setPath(path);
+		return Config.readPath(documentClass, path).withPath(path);
 	}
 
     static Document readFile(@NotNull Class<? extends Config> documentClass, @NotNull File file) {
-        return Config.readFile(documentClass, file).setPath(file);
+        return Config.readFile(documentClass, file).withPath(file);
     }
 
     /**
@@ -63,46 +63,21 @@ public interface Document extends Config {
      *
      * @throws IOException if an error occurs while saving the file
      */
-    default void save() throws IOException {
-        getConfig().save(getFile());
-    }
+    void save() throws IOException;
 
     /**
      * Saves the file to the watched location.
      *
      * @return {@code true} if the save operation was successful, otherwise {@code false}
      */
-    default boolean saveSafely() {
-        try {
-            save(getFile());
-            return true;
-        } catch (IOException e) {
-            ILogger.forThisClass().error("An error occurred while saving document at " + getFile().getPath(), e);
-            return false;
-        }
-    }
+    boolean saveSafely();
 
     /**
      * Saves the file to the given location asynchronously.
      *
      * @return a task for handling the result of the save operation
      */
-    default Task<Void> saveAsync() {
-        return Scheduler.runAsyncCallable(() -> {
-            save();
-            return null;
-        });
-    }
-
-    @Override
-    default boolean isCommentable() {
-        return getConfig() instanceof Commentable;
-    }
-
-    @Override
-    default Commentable asCommentable() {
-        return (Commentable) getConfig();
-    }
+    Task<Void> saveAsync();
 
     @Override
     default Config getParent() {

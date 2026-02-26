@@ -1,7 +1,6 @@
 package dev.spoocy.utils.reflection.builder;
 
 import dev.spoocy.utils.reflection.matcher.*;
-import lombok.Getter;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +18,6 @@ import java.util.regex.Pattern;
  * @author Spoocy99 | GitHub: Spoocy99
  */
 
-@Getter
 public class MethodBuilder {
 
     @Contract(" -> new")
@@ -62,6 +60,43 @@ public class MethodBuilder {
         this.parameters = new ArrayList<>(builder.parameters);
         this.annotations = new ArrayList<>(builder.annotations);
         this.excludedAnnotations = new ArrayList<>(builder.excludedAnnotations);
+    }
+
+    @Nullable
+    public Pattern getName() {
+        return this.name;
+    }
+
+    public int getRequiredModifiers() {
+        return this.requiredModifiers;
+    }
+
+    public int getExcludedModifiers() {
+        return this.excludedModifiers;
+    }
+
+    @NotNull
+    public IMatcher<Class<?>> getReturnType() {
+        return this.returnType;
+    }
+
+    public int getParameterCount() {
+        return this.parameterCount;
+    }
+
+    @NotNull
+    public List<ParameterMatcher> getParameters() {
+        return this.parameters;
+    }
+
+    @NotNull
+    public List<Class<? extends Annotation>> getAnnotations() {
+        return this.annotations;
+    }
+
+    @NotNull
+    public List<Class<? extends Annotation>> getExcludedAnnotations() {
+        return this.excludedAnnotations;
     }
 
     /**

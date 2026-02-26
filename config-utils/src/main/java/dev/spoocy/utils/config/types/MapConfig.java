@@ -1,6 +1,7 @@
-package dev.spoocy.utils.config.documents;
+package dev.spoocy.utils.config.types;
 
 import dev.spoocy.utils.config.Config;
+import dev.spoocy.utils.config.components.AbstractConfig;
 import dev.spoocy.utils.config.misc.SectionList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

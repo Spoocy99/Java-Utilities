@@ -6,20 +6,14 @@ package dev.spoocy.utils.config;
 
 public interface Json {
 
+    /** An empty JSON object. */
+    Json EMPTY = () -> "{}";
+
     /**
      * Convert this object to a JSON string.
      *
      * @return the JSON string
      */
 	String toJson();
-
-    /**
-     * Create an empty JSON object.
-     *
-     * @return the empty JSON object
-     */
-	static Json empty() {
-		return () -> "{}";
-	}
 
 }

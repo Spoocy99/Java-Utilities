@@ -6,7 +6,7 @@
 
     <groupId>dev.spoocy.utils</groupId>
     <artifactId>root</artifactId>
-    <version>1.0.11</version>
+    <version>1.0.12</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -15,6 +15,7 @@
         <module>config-utils</module>
         <module>reflection-utils</module>
         <module>security-utils</module>
+        <module>config-utils-yaml</module>
     </modules>
 
     <properties>
@@ -194,16 +195,15 @@
             </dependency>
 
             <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>1.18.42</version>
-                <scope>provided</scope>
-            </dependency>
-
-            <dependency>
                 <groupId>org.json</groupId>
                 <artifactId>json</artifactId>
                 <version>20250517</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>2.5</version>
             </dependency>
 
             <dependency>

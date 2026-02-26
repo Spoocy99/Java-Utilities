@@ -3,7 +3,6 @@ package dev.spoocy.utils.reflection.builder;
 import dev.spoocy.utils.reflection.matcher.ClassMatcher;
 import dev.spoocy.utils.reflection.matcher.FieldMatcher;
 import dev.spoocy.utils.reflection.matcher.IMatcher;
-import lombok.Getter;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +19,6 @@ import java.util.regex.Pattern;
  * @author Spoocy99 | GitHub: Spoocy99
  */
 
-@Getter
 public class FieldBuilder {
 
     @Contract(" -> new")
@@ -60,6 +58,39 @@ public class FieldBuilder {
         this.annotations = new ArrayList<>(builder.annotations);
         this.excludedAnnotations = new ArrayList<>(builder.excludedAnnotations);
         this.genericTypes = new ArrayList<>(builder.genericTypes);
+    }
+
+    @Nullable
+    public Pattern getName() {
+        return this.name;
+    }
+
+    public int getRequiredModifiers() {
+        return this.requiredModifiers;
+    }
+
+    public int getExcludedModifiers() {
+        return this.excludedModifiers;
+    }
+
+    @NotNull
+    public IMatcher<Class<?>> getType() {
+        return this.type;
+    }
+
+    @NotNull
+    public List<GenericType> getGenericTypes() {
+        return this.genericTypes;
+    }
+
+    @NotNull
+    public List<Class<? extends Annotation>> getAnnotations() {
+        return this.annotations;
+    }
+
+    @NotNull
+    public List<Class<? extends Annotation>> getExcludedAnnotations() {
+        return this.excludedAnnotations;
     }
 
     /**
@@ -273,10 +304,10 @@ public class FieldBuilder {
         if (b == null) return false;
         if (a == b) return true;
 
-        return a.pattern().equals(b.pattern());
+        return a.pattern()
+                .equals(b.pattern());
     }
 
-    @Getter
     public static class GenericType {
         private final IMatcher<Class<?>> type;
         private final int index;
@@ -285,6 +316,15 @@ public class FieldBuilder {
             this.type = type;
             this.index = index;
         }
+
+        public IMatcher<Class<?>> getType() {
+            return this.type;
+        }
+
+        public int getIndex() {
+            return this.index;
+        }
+
     }
 
 }

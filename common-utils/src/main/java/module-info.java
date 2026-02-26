@@ -3,8 +3,6 @@
  */
 
 module dev.spoocy.utils.common {
-    requires static lombok;
-
     requires org.jetbrains.annotations;
     requires org.slf4j;
     requires java.logging;
