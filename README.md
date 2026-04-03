@@ -51,6 +51,15 @@ Reflection Utils:
 </dependency>
 ```
 
+Security Utils:
+```xml
+<dependency>
+  <groupId>dev.spoocy.utils</groupId>
+  <artifactId>security-utils</artifactId>
+  <version>VERSION</version>
+</dependency>
+```
+
 Bukkit Utils:
 ```xml
 <dependency>
