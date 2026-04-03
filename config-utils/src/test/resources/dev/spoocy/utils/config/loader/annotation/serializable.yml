@@ -1,0 +1,5 @@
+serializable:
+  ==: dev.spoocy.utils.config.types.SerializableExample
+  name: example
+  value: 42
+

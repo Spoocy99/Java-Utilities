@@ -1,12 +1,17 @@
 package dev.spoocy.utils.common.scheduler.task;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
+ * Represents a unit of work that can be executed, tracked, and monitored for its completion status.
+ * This interface provides methods to check the task's state (e.g., completed, cancelled, or failed)
+ * and to attach callback mechanisms for responding to various outcomes of the task execution.
+ *
+ * @param <V> the type of the result produced by the task
+ *
  * @author Spoocy99 | GitHub: Spoocy99
  */
 
@@ -40,7 +45,7 @@ public interface Task<V> {
      *
      * @return this task for chaining
      */
-    Task<V> onSuccess(Runnable runnable);
+    Task<V> onSuccess(@NotNull Runnable runnable);
 
     /**
      * Executes the given consumer when the task is successfully completed.
@@ -67,7 +72,7 @@ public interface Task<V> {
      *
      * @return this task for chaining
      */
-    Task<V> onCancelled(Runnable runnable);
+    Task<V> onCancelled(@NotNull Runnable runnable);
 
     /**
      * Executes the given consumer when the task is cancelled.
@@ -76,7 +81,7 @@ public interface Task<V> {
      *
      * @return this task for chaining
      */
-	Task<V> onCancelled(@NotNull Consumer<? super Task<V>> consumer);
+    Task<V> onCancelled(@NotNull Consumer<? super Task<V>> consumer);
 
     /**
      * Executes the given runnable when the task is cancelled.
@@ -85,7 +90,7 @@ public interface Task<V> {
      *
      * @return this task for chaining
      */
-    Task<V> onException(Runnable runnable);
+    Task<V> onException(@NotNull Runnable runnable);
 
     /**
      * Executes the given consumer when the task fails to complete.
@@ -104,28 +109,5 @@ public interface Task<V> {
      * @return this task for chaining
      */
     Task<V> onException(@NotNull BiConsumer<? super Task<V>, ? super Throwable> consumer);
-
-    /**
-     * Completes the task with the given value.
-     *
-     * @param value the value to complete the task with
-     */
-    void complete(@Nullable V value);
-
-    /**
-     * Fails the task with the given exception.
-     *
-     * @param throwable the exception to fail the task with
-     */
-    void fail(@NotNull Throwable throwable);
-
-    /**
-     * Cancels the task.
-     *
-     * @param mayInterruptIfRunning whether the task should be interrupted if it is running
-     *
-     * @return {@code true} if the task is now cancelled, {@code false} otherwise
-     */
-    boolean cancel(boolean mayInterruptIfRunning);
 
 }

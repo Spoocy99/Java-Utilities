@@ -32,6 +32,6 @@ public @interface SerializableAs {
      * @return Name to serialize the class as.
      */
     @NotNull
-    public String value();
+    String value();
 
 }

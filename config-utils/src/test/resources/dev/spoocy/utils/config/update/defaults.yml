@@ -1,0 +1,7 @@
+config-version: 2.0.0
+database:
+  host: defaults.local
+  port: 3306
+feature:
+  enabled: true
+

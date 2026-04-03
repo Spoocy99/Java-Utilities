@@ -1,6 +1,6 @@
 package dev.spoocy.utils.config.serializer.impl;
 
-import dev.spoocy.utils.config.serializer.ConfigSerializer;
+import dev.spoocy.utils.config.serializer.NamedSerializers;
 import dev.spoocy.utils.config.serializer.Serializer;
 import org.jetbrains.annotations.NotNull;
 
@@ -46,7 +46,7 @@ public class AtomicsSerializer<A> implements Serializer<A> {
                 throw new IllegalArgumentException("Unsupported atomic type: " + clazz.getName());
             }
 
-            map.put(ConfigSerializer.SERIALIZED_TYPE_KEY, clazz.getName());
+            map.put(NamedSerializers.SERIALIZED_TYPE_KEY, clazz.getName());
             return map;
         } catch (Exception e) {
             throw new IllegalArgumentException("Failed to serialize object of type: " + object.getClass().getName(), e);

@@ -16,13 +16,23 @@ public class TestResult {
     public static final TestResult SKIPPED = new TestResult(CheckResult.SKIPPED, "Test skipped.");
 
     private final CheckResult result;
+    private final Exception exception;
     private final String[] messages;
 
     public TestResult(
             @NotNull CheckResult result,
             @Nullable String... messages
     ) {
+        this(result, null, messages);
+    }
+
+    public TestResult(
+            @NotNull CheckResult result,
+            @Nullable Exception exception,
+            @Nullable String... messages
+    ) {
         this.result = result;
+        this.exception = exception;
 
         this.messages = (messages == null || messages.length == 0) ? new String[] {"NONE"} : Arrays.copyOf(messages, messages.length);
         for (int i = 0; i < this.messages.length; i++) {
@@ -33,12 +43,17 @@ public class TestResult {
     }
 
     @NotNull
-    public String[] getMessages() {
-        return messages;
+    public CheckResult getResult() {
+        return this.result;
+    }
+
+    @Nullable
+    public Exception getException() {
+        return this.exception;
     }
 
     @NotNull
-    public CheckResult getResult() {
-        return result;
+    public String[] getMessages() {
+        return this.messages;
     }
 }

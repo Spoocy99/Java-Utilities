@@ -1,5 +1,8 @@
 package dev.spoocy.utils.common.misc;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
@@ -357,6 +360,18 @@ public class Args {
         return false;
     }
 
+    public static <T> void noNullElements(@Nullable T[] array, @NotNull String name) {
+        if (array == null) {
+            throw nullPointerException(name);
+        }
+
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] == null) {
+                throw illegalArgumentException("%s must not contain null elements, but element at index %d is null", name, i);
+            }
+        }
+    }
+
     private static IllegalArgumentException illegalArgumentException(final String format, final Object... args) {
         return new IllegalArgumentException(String.format(format, args));
     }
@@ -369,8 +384,18 @@ public class Args {
         return new NullPointerException(name + " must not be null");
     }
 
+    public static <T> T[] combineArgs(@NotNull T first, @NotNull T[] second) {
+        notNull(first, "first");
+        notNull(second, "second");
+
+        @SuppressWarnings("unchecked")
+        T[] combined = (T[]) Array.newInstance(first.getClass(), second.length + 1);
+        combined[0] = first;
+        System.arraycopy(second, 0, combined, 1, second.length);
+        return combined;
+    }
+
     private Args() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
-
 }

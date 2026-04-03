@@ -1,6 +1,6 @@
 package dev.spoocy.utils.config.serializer.impl;
 
-import dev.spoocy.utils.config.serializer.ConfigSerializer;
+import dev.spoocy.utils.config.serializer.NamedSerializers;
 import dev.spoocy.utils.config.serializer.Serializer;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,7 +25,7 @@ public class DurationSerializer implements Serializer<Duration> {
     @Override
     public @NotNull Map<String, Object> serialize(@NotNull Duration object) {
         return Map.of(
-                ConfigSerializer.SERIALIZED_TYPE_KEY, Duration.class.getName(),
+                NamedSerializers.SERIALIZED_TYPE_KEY, Duration.class.getName(),
                 SERIALIZED_DURATION_SECONDS_KEY, object.getSeconds(),
                 SERIALIZED_DURATION_NANOS_KEY, object.getNano()
         );

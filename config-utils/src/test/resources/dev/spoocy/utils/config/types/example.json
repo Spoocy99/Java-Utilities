@@ -1,0 +1,10 @@
+{
+  "foo": "bar",
+  "key2": 123,
+  "serializable": {
+    "==": "dev.spoocy.utils.config.types.SerializableExample",
+    "name": "example",
+    "value": 42
+  }
+}
+

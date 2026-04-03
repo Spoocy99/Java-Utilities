@@ -3,8 +3,8 @@
  */
 
 module dev.spoocy.utils.common {
-    requires org.jetbrains.annotations;
-    requires org.slf4j;
+    requires static org.jetbrains.annotations;
+    requires static org.slf4j;
     requires java.logging;
 
     exports dev.spoocy.utils.common.cache;

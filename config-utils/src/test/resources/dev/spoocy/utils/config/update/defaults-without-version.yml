@@ -1,0 +1,6 @@
+database:
+  host: fallback.local
+  port: 5432
+feature:
+  enabled: true
+

@@ -6,6 +6,9 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
+ * A simple wrapper class that can hold a value or a supplier for lazy initialization.
+ * The value is only computed when the get() method is called for the first time, and then cached for subsequent calls.
+ *
  * @author Spoocy99 | GitHub: Spoocy99
  */
 

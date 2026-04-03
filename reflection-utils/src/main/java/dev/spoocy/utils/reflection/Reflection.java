@@ -11,6 +11,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -34,10 +38,8 @@ public class Reflection {
     /**
      * Gets a public constructor accessor for the specified class and parameter types.
      *
-     * @param clazz
-     *          the class to get the constructor from
-     * @param parameters
-     *          the parameter types of the constructor
+     * @param clazz      the class to get the constructor from
+     * @param parameters the parameter types of the constructor
      *
      * @return the constructor accessor.
      */
@@ -53,19 +55,19 @@ public class Reflection {
      * Gets a field accessor for the specified class, field name, and field type.
      * Either fieldName or fieldType can be null, but not both.
      *
-     * @param clazz
-     *          the class to get the field from
-     * @param fieldName
-     *          the name of the field (can be null)
-     * @param fieldType
-     *          the type of the field (can be null)
+     * @param clazz     the class to get the field from
+     * @param fieldName the name of the field (can be null)
+     * @param fieldType the type of the field (can be null)
      *
      * @return the field accessor.
      *
-     * @throws IllegalArgumentException
-     *          if both fieldName and fieldType are null
+     * @throws IllegalArgumentException if both fieldName and fieldType are null
      */
-    public static FieldAccessor getField(@NotNull Class<?> clazz, @Nullable String fieldName, @Nullable Class<?> fieldType) {
+    public static FieldAccessor getField(
+            @NotNull Class<?> clazz,
+            @Nullable String fieldName,
+            @Nullable Class<?> fieldType
+    ) {
         FieldBuilder builder = field();
 
         if (fieldName != null) {
@@ -87,16 +89,17 @@ public class Reflection {
      * Gets a method accessor for the specified class, method name, and parameter types.
      * Method name can be null, in which case the first method matching the parameter types will be returned.
      *
-     * @param clazz
-     *          the class to get the method from
-     * @param methodName
-     *          the name of the method (can be null)
-     * @param args
-     *          the parameter types of the method
+     * @param clazz      the class to get the method from
+     * @param methodName the name of the method (can be null)
+     * @param args       the parameter types of the method
      *
      * @return the method accessor.
      */
-    public static MethodAccessor getMethod(@NotNull Class<?> clazz, @Nullable String methodName, @NotNull Object... args) {
+    public static MethodAccessor getMethod(
+            @NotNull Class<?> clazz,
+            @Nullable String methodName,
+            @NotNull Object... args
+    ) {
 
         Class<?>[] parameterTypes = new Class<?>[args != null ? args.length : 0];
         if (args != null && args.length > 0) {
@@ -121,7 +124,7 @@ public class Reflection {
 
         if (parameterTypes.length > 0) {
             builder.parameterCount(parameterTypes.length);
-            for(int i = 0; i < parameterTypes.length; i++) {
+            for (int i = 0; i < parameterTypes.length; i++) {
                 builder.parameterType(i, parameterTypes[i]);
             }
         }
@@ -136,16 +139,17 @@ public class Reflection {
     /**
      * Checks if the given class has the specified annotation or any of its superclasses (if inheritance is true).
      *
-     * @param clazz
-     *          the class to check
-     * @param annotation
-     *          the annotation to look for
-     * @param inheritance
-     *          whether to check superclasses for the annotation
+     * @param clazz       the class to check
+     * @param annotation  the annotation to look for
+     * @param inheritance whether to check superclasses for the annotation
      *
      * @return true if the annotation is present, false otherwise
      */
-    public static boolean hasAnnotation(@NotNull Class<?> clazz, @NotNull Class<? extends Annotation> annotation, boolean inheritance) {
+    public static boolean hasAnnotation(
+            @NotNull Class<?> clazz,
+            @NotNull Class<? extends Annotation> annotation,
+            boolean inheritance
+    ) {
         if (clazz.isAnnotationPresent(annotation)) {
             return true;
         }
@@ -160,17 +164,18 @@ public class Reflection {
     /**
      * Gets the specified annotation from the given class or its superclasses (if inheritance is true).
      *
-     * @param clazz
-     *          the class to get the annotation from
-     * @param annotation
-     *          the annotation to look for
-     * @param inheritance
-     *          whether to check superclasses for the annotation
+     * @param clazz       the class to get the annotation from
+     * @param annotation  the annotation to look for
+     * @param inheritance whether to check superclasses for the annotation
      *
      * @return the annotation if found, {@code null} otherwise.
      */
     @Nullable
-    public static <A extends Annotation> A getAnnotation(@NotNull Class<?> clazz, @NotNull Class<A> annotation, boolean inheritance) {
+    public static <A extends Annotation> A getAnnotation(
+            @NotNull Class<?> clazz,
+            @NotNull Class<A> annotation,
+            boolean inheritance
+    ) {
         if (clazz.isAnnotationPresent(annotation)) {
             return clazz.getAnnotation(annotation);
         }
@@ -185,15 +190,12 @@ public class Reflection {
     /**
      * Gets the enum constant of the specified enum class with the specified name.
      *
-     * @param enumClass
-     *          the enum class
-     * @param name
-     *          the name of the enum constant
+     * @param enumClass the enum class
+     * @param name      the name of the enum constant
      *
      * @return the enum constant with the specified name.
      *
-     * @throws IllegalArgumentException
-     *          if the specified enum class has no constant with the specified name
+     * @throws IllegalArgumentException if the specified enum class has no constant with the specified name
      */
     public static <E extends Enum<E>> E getEnumValue(@NotNull Class<E> enumClass, @NotNull String name) {
         return Enum.valueOf(enumClass, name);
@@ -207,10 +209,54 @@ public class Reflection {
      * @return a set of all enum constants of the specified enum class.
      */
     public static <E extends Enum<E>> Set<E> getEnumValues(@NotNull Class<E> enumClass) {
-        return Collector.of(enumClass.getEnumConstants()).asSet();
+        return Collector.of(enumClass.getEnumConstants())
+                .asSet();
+    }
+
+    /**
+     * Resolves the element type of a collection field.
+     * If the provided field represents a collection type (e.g., List, Set) with a parameterized type,
+     * this method attempts to determine and return the element type of the collection. If the field is
+     * not a collection or its type does not define a parameterized type, the method returns {@code null}.
+     *
+     * @param field the field to inspect, must not be null
+     *
+     * @return the class representing the element type of the collection, or {@code null} if it
+     * cannot be determined or the field is not a collection type
+     */
+    @Nullable
+    public static Class<?> resolveCollectionElementType(@NotNull Field field) {
+        if (!Collection.class.isAssignableFrom(field.getType())) {
+            return null;
+        }
+
+        Type declared = field.getGenericType();
+        if (!(declared instanceof ParameterizedType)) {
+            return null;
+        }
+
+        Type[] typeArguments = ((ParameterizedType) declared).getActualTypeArguments();
+        if (typeArguments.length != 1) {
+            return null;
+        }
+
+        Type elementType = typeArguments[0];
+        if (elementType instanceof Class<?>) {
+            return (Class<?>) elementType;
+        }
+
+        if (elementType instanceof ParameterizedType) {
+            Type rawType = ((ParameterizedType) elementType).getRawType();
+            if (rawType instanceof Class<?>) {
+                return (Class<?>) rawType;
+            }
+        }
+
+        return null;
     }
 
     private Reflection() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
+
 }

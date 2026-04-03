@@ -3,7 +3,7 @@
  */
 
 module dev.spoocy.utils.security {
-    requires org.jetbrains.annotations;
+    requires static org.jetbrains.annotations;
     requires dev.spoocy.utils.common;
     requires dev.spoocy.utils.reflection;
 

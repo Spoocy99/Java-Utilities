@@ -1,6 +1,6 @@
 package dev.spoocy.utils.common.scheduler;
 
-import dev.spoocy.utils.common.scheduler.task.ScheduledTask;
+import dev.spoocy.utils.common.scheduler.task.CompletableTask;
 import dev.spoocy.utils.common.scheduler.task.Task;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,10 +11,20 @@ import java.util.function.Supplier;
  * @author Spoocy99 | GitHub: Spoocy99
  */
 
-public class JavaScheduler implements IScheduler {
+public class JavaScheduler implements Scheduler, AutoCloseable {
 
-    private static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
-    private static final ScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1);
+    private final ExecutorService executorService;
+    private final ScheduledExecutorService scheduledExecutorService;
+    private volatile boolean shutdown = false;
+
+    public JavaScheduler(int corePoolSize) {
+        this(Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(corePoolSize));
+    }
+
+    public JavaScheduler(ExecutorService executorService, ScheduledExecutorService scheduledExecutorService) {
+        this.executorService = executorService;
+        this.scheduledExecutorService = scheduledExecutorService;
+    }
 
     @Override
     public void executeSync(@NotNull Runnable runnable) {
@@ -23,7 +33,8 @@ public class JavaScheduler implements IScheduler {
 
     @Override
     public void executeAsync(@NotNull Runnable runnable) {
-        EXECUTOR_SERVICE.execute(runnable);
+        checkShutdown();
+        executorService.execute(runnable);
     }
 
     @Override
@@ -81,7 +92,7 @@ public class JavaScheduler implements IScheduler {
     }
 
     private <V> Task<V> callSync(@NotNull Callable<V> callable) {
-        Task<V> task = ScheduledTask.create();
+        CompletableTask<V> task = CompletableTask.empty();
 
         try {
             task.complete(callable.call());
@@ -93,23 +104,25 @@ public class JavaScheduler implements IScheduler {
     }
 
     private <V> Task<V> callAsync(@NotNull Callable<V> callable) {
-        Task<V> task = ScheduledTask.create();
+        checkShutdown();
+        CompletableTask<V> task = CompletableTask.empty();
 
-		EXECUTOR_SERVICE.execute( ()-> {
-                try {
-                    task.complete(callable.call());
-                } catch (Throwable ex) {
-                    task.fail(ex);
-                }
-            });
+        executorService.execute(() -> {
+            try {
+                task.complete(callable.call());
+            } catch (Throwable ex) {
+                task.fail(ex);
+            }
+        });
 
-		return task;
+        return task;
     }
 
     private <V> Task<V> callAsyncDelayed(@NotNull Callable<V> callable, long delay, TimeUnit unit) {
-        Task<V> task = ScheduledTask.create();
+        checkShutdown();
+        CompletableTask<V> task = CompletableTask.empty();
 
-        SCHEDULED_EXECUTOR_SERVICE.schedule(() -> {
+        scheduledExecutorService.schedule(() -> {
             try {
                 task.complete(callable.call());
             } catch (Throwable ex) {
@@ -120,4 +133,44 @@ public class JavaScheduler implements IScheduler {
         return task;
     }
 
+    private void checkShutdown() {
+        if (shutdown) {
+            throw new IllegalStateException("JavaScheduler has been shut down");
+        }
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (shutdown) {
+            return;
+        }
+
+        shutdown = true;
+
+        // Shutdown executor service
+        executorService.shutdown();
+        if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+            executorService.shutdownNow();
+        }
+
+        // Shutdown scheduled executor service
+        scheduledExecutorService.shutdown();
+        if (!scheduledExecutorService.awaitTermination(10, TimeUnit.SECONDS)) {
+            scheduledExecutorService.shutdownNow();
+        }
+    }
+
+    /**
+     * Shuts down the scheduler immediately without waiting for termination.
+     * Useful when graceful shutdown is not required.
+     */
+    public void shutdown() {
+        if (shutdown) {
+            return;
+        }
+
+        shutdown = true;
+        executorService.shutdownNow();
+        scheduledExecutorService.shutdownNow();
+    }
 }

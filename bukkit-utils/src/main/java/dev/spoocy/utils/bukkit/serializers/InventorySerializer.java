@@ -4,6 +4,7 @@ import dev.spoocy.utils.bukkit.biz.source_code.base64Coder.Base64Coder;
 import dev.spoocy.utils.common.exceptions.WrappedException;
 import dev.spoocy.utils.config.serializer.Serializer;
 import org.bukkit.Bukkit;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.io.BukkitObjectInputStream;
@@ -32,16 +33,16 @@ public class InventorySerializer implements Serializer<Inventory> {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
 
-            dataOutput.writeInt(object.getSize());
-
-            for (int i = 0; i < object.getSize(); i++) {
-                dataOutput.writeObject(object.getItem(i));
-            }
-
+            dataOutput.writeObject(object.getContents());
             dataOutput.close();
+
             String base64 = Base64Coder.encodeLines(outputStream.toByteArray());
 
-            return Map.of("base64", base64);
+            return Map.of(
+                "type", object.getType().name(),
+                "size", object.getSize(),
+                "base64", base64
+            );
         } catch (Throwable e) {
             WrappedException.rethrow(e);
         }
@@ -51,23 +52,48 @@ public class InventorySerializer implements Serializer<Inventory> {
 
     @Override
     public @NotNull Inventory deserialize(@NotNull Map<String, Object> map) {
-        if(!map.containsKey("base64")) {
+        if (!map.containsKey("type")) {
+            throw new IllegalArgumentException("Map does not contain key 'type'.");
+        }
+        if (!map.containsKey("size")) {
+            throw new IllegalArgumentException("Map does not contain key 'size'.");
+        }
+        if (!map.containsKey("base64")) {
             throw new IllegalArgumentException("Map does not contain key 'base64'.");
         }
 
         try {
+            String typeName = (String) map.get("type");
+            int size = ((Number) map.get("size")).intValue();
             String base64 = (String) map.get("base64");
-            byte[] data = Base64Coder.decode(base64);
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
-            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
-            Inventory inventory = Bukkit.getServer().createInventory(null, dataInput.readInt());
 
-            for (int i = 0; i < inventory.getSize(); i++) {
-                inventory.setItem(i, (ItemStack) dataInput.readObject());
-            }
+            InventoryType type = InventoryType.valueOf(typeName);
+
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(base64));
+            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
+            ItemStack[] contents = (ItemStack[]) dataInput.readObject();
             dataInput.close();
+
+            Inventory inventory;
+            if (type == InventoryType.CHEST) {
+                if (size <= 0 || size > 54 || size % 9 != 0) {
+                    throw new IllegalArgumentException("Invalid chest inventory size: " + size);
+                }
+
+                inventory = Bukkit.createInventory(null, size);
+            } else {
+                inventory = Bukkit.createInventory(null, type);
+            }
+
+            if (contents.length != inventory.getSize()) {
+                ItemStack[] resized = new ItemStack[inventory.getSize()];
+                System.arraycopy(contents, 0, resized, 0, Math.min(contents.length, resized.length));
+                contents = resized;
+            }
+
+            inventory.setContents(contents);
             return inventory;
-        } catch (Throwable e) {
+        } catch (Exception e) {
             WrappedException.rethrow(e);
         }
 

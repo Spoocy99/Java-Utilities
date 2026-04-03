@@ -2,7 +2,7 @@ package dev.spoocy.utils.config.serializer.impl;
 
 import dev.spoocy.utils.common.cache.Cache;
 import dev.spoocy.utils.common.cache.Caches;
-import dev.spoocy.utils.config.serializer.ConfigSerializer;
+import dev.spoocy.utils.config.serializer.NamedSerializers;
 import dev.spoocy.utils.config.serializer.Serializer;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,7 +41,7 @@ public class JavaSerializer<O extends Serializable> implements Serializer<O> {
             String data = Base64.getEncoder().encodeToString(baos.toByteArray());
 
             return Map.of(
-                    ConfigSerializer.SERIALIZED_TYPE_KEY, clazz.getName(),
+                    NamedSerializers.SERIALIZED_TYPE_KEY, clazz.getName(),
                     SERIALIZED_DATA_KEY, data
             );
 

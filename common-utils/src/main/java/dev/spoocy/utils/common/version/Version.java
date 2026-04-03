@@ -15,6 +15,8 @@ import java.util.regex.Pattern;
 
 public interface Version extends Comparable<Version>, Serializable {
 
+    Version ZERO = new SimpleVersion(0, 0, 0, null, null);
+
     /**
      * @return The major version
      */
