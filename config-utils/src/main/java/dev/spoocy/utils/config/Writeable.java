@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
  * @author Spoocy99 | GitHub: Spoocy99
  */
 
-public interface Writeable extends Commentable {
+public interface Writeable extends Readable, Commentable {
 
 	void set(@NotNull String path, @Nullable Object value);
 

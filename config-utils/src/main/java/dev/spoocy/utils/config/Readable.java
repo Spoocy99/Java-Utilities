@@ -69,33 +69,6 @@ public interface Readable {
     boolean is(@NotNull String path, @NotNull Class<?> clazz);
 
     /**
-     * Retrieves a serializable object from the specified path. If the retrieved value is null or
-     * not serializable to the expected type, the provided default value will be returned.
-     *
-     * @param <T>          The type of the serializable object to retrieve.
-     * @param path         The path to the value in the configuration. Must not be null.
-     * @param clazz        The class type to which the object should be cast. Must not be null.
-     * @param defaultValue The default value to return if the retrieved object is null or cannot be serialized to the expected type. Can be null.
-     *
-     * @return The serializable object at the specified path, or the default value if the object
-     * is null or cannot be serialized to the expected type.
-     */
-    <T> T getSerializable(@NotNull String path, @NotNull Class<T> clazz, @Nullable T defaultValue);
-
-    /**
-     * Retrieves a serializable object from the specified path in the configuration.
-     *
-     * @param path  the path to the object in the configuration (not null)
-     * @param clazz the class type to which the object should be cast (not null)
-     * @param <T>   the type of the object to be retrieved
-     *
-     * @return the deserialized object of the specified type, or {@code null} if the object
-     * is not found, cannot be cast to the specified type, or deserialization fails
-     */
-    @Nullable
-    <T> T getSerializable(@NotNull String path, @NotNull Class<T> clazz);
-
-    /**
      * Checks if the value at the specified path is a {@link String}.
      *
      * @param path the path to the value
@@ -298,7 +271,7 @@ public interface Readable {
     }
 
     /**
-     * Checks if the value at the specified path is {@link Set}
+     * Checks if the value at the specified path exists.
      *
      * @param path the path to check
      *
@@ -325,7 +298,9 @@ public interface Readable {
      * @return the value at the specified path as a List, or {@code null} if the path does not exist, is not set, or cannot be converted to a List
      */
     @Nullable
-    List<?> getList(@NotNull String path);
+    default List<?> getList(@NotNull String path) {
+        return getList(path, null);
+    }
 
     /**
      * Gets the value at the specified path as a List,

@@ -364,6 +364,13 @@ public final class FileUtils {
 		return new URL(root, FileUtils.cleanPath(FileUtils.applyRelativePath(root.toString(), relativePath)));
 	}
 
+    /**
+     * Converts the package name of a given class into a path-like resource representation.
+     * If the class is null or does not belong to any package, an empty string will be returned.
+     *
+     * @param clazz the class whose package name will be converted; can be null
+     * @return the package name as a resource path with path separators, or an empty string if the class is null or not in a package
+     */
     public static String classPackageAsResourcePath(@Nullable Class<?> clazz) {
         if (clazz == null) {
             return "";

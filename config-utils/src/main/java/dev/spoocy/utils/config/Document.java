@@ -2,7 +2,6 @@ package dev.spoocy.utils.config;
 
 import dev.spoocy.utils.config.io.Resource;
 import dev.spoocy.utils.config.representer.Representer;
-import dev.spoocy.utils.config.types.ConfigSettings;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -22,11 +21,24 @@ public interface Document extends Config {
     Resource getRelation();
 
     /**
-     * Saves the file to the documents location.
+     * Returns a new {@link Config} instance without the associated relation.
+     * This method is used to create a standalone configuration,
+     * independent of any linked or related resources.
      *
-     * @throws IOException if an error occurs while saving the file
-     * 
-     * @see ConfigSettings#representer(Representer)
+     * @return a new {@link Config} instance without an associated relation
      */
-    void save() throws IOException;
+    @NotNull
+    Config withoutRelation();
+
+    /**
+     * Saves the current document state using the provided {@code Representer}.
+     * <p>
+     * This method serializes the document into a suitable format as defined
+     * by the {@code Representer} implementation and writes it to the associated resource.
+     *
+     * @param representer the representer used to serialize the document data
+     *
+     * @throws IOException if an I/O error occurs during the save operation
+     */
+    void save(@NotNull Representer representer) throws IOException;
 }

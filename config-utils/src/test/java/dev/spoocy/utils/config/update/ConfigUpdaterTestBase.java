@@ -3,7 +3,7 @@ package dev.spoocy.utils.config.update;
 import dev.spoocy.utils.common.version.Version;
 import dev.spoocy.utils.config.*;
 import dev.spoocy.utils.config.io.Resource;
-import dev.spoocy.utils.config.io.ResourceTest;
+import dev.spoocy.utils.config.ResourceTest;
 import dev.spoocy.utils.config.types.MemoryConfig;
 import org.jetbrains.annotations.NotNull;
 

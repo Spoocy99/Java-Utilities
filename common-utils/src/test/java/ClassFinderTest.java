@@ -1,4 +1,5 @@
 import dev.spoocy.utils.common.misc.ClassFinder;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,6 +19,7 @@ public class ClassFinderTest {
     }
 
     // Helper method to add an extra stack frame
+    @NotNull
     private String helperCallingClassName() {
         return ClassFinder.callingClassName();
     }
@@ -28,6 +30,7 @@ public class ClassFinderTest {
         assertEquals(this.getClass().getName(), className);
     }
 
+    @NotNull
     private String helperCallingClassName(int depth) {
         return ClassFinder.callingClassName(depth);
     }

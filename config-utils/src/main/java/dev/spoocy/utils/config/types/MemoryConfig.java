@@ -1,9 +1,11 @@
 package dev.spoocy.utils.config.types;
 
-import dev.spoocy.utils.config.components.AbstractConfig;
+import dev.spoocy.utils.config.AbstractConfig;
 import dev.spoocy.utils.config.io.WriteableResource;
+import dev.spoocy.utils.config.nodes.ScalarNode;
 import dev.spoocy.utils.config.representer.Representer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
@@ -33,5 +35,10 @@ public class MemoryConfig extends AbstractConfig {
     @Override
     public void save(@NotNull WriteableResource file, @NotNull Representer representer) throws IOException {
         throw new UnsupportedOperationException("Saving to string is not supported for MemoryConfig");
+    }
+
+    @Override
+    protected @Nullable Object unpackScalar(@NotNull ScalarNode node) {
+        return node.getData();
     }
 }

@@ -4,4 +4,8 @@ database:
   port: 3306
 feature:
   enabled: true
+  map: !!map
+    key: value
+  name: default
+  version: 1.0.0
 

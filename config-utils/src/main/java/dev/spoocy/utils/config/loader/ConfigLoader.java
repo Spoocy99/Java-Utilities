@@ -1,7 +1,6 @@
 package dev.spoocy.utils.config.loader;
 
 import dev.spoocy.utils.config.Config;
-import dev.spoocy.utils.config.constructor.SerializingConstructor;
 import dev.spoocy.utils.config.io.Resource;
 import dev.spoocy.utils.config.constructor.Constructor;
 import dev.spoocy.utils.config.types.ConfigSettings;

@@ -1,0 +1,30 @@
+{
+  "serialize:objects": {
+
+    "sequence-objects": [
+      {
+        "==": "CustomObject",
+        "name": "name1",
+        "age": 1
+      },
+      {
+        "==": "CustomObject",
+        "name": "name2",
+        "age": 2
+      }
+    ],
+
+    "map-objects": {
+      "o-1": {
+        "==": "CustomObject",
+        "name": "name1",
+        "age": 1
+      },
+      "o-2": {
+        "==": "CustomObject",
+        "name": "name2",
+        "age": 2
+      }
+    }
+  }
+}

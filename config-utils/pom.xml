@@ -33,12 +33,14 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <optional>true</optional>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
             <optional>true</optional>
+            <scope>compile</scope>
         </dependency>
 
     </dependencies>

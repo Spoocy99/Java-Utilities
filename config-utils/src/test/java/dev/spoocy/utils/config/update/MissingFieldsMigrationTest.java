@@ -5,6 +5,7 @@ import dev.spoocy.utils.config.Config;
 import dev.spoocy.utils.config.ConfigProvider;
 import dev.spoocy.utils.config.ConfigSection;
 import dev.spoocy.utils.config.update.migrations.MissingFieldsMigration;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -49,11 +50,11 @@ public class MissingFieldsMigrationTest extends ConfigUpdaterTestBase {
 			defaults.set("database.host", "db.local");
 
 			ConfigSection target = memoryConfig();
-			target.set("database", "flat-value");
+			target.set("database.val", "flat-value");
 
 			assertTrue(migration(() -> defaults).apply(target));
-			assertEquals("flat-value", target.getString("database"));
-			assertFalse(target.isSet("database.host"));
+			assertEquals("flat-value", target.getString("database.val"));
+            assertEquals("db.local", target.getString("database.host"));
 		}
 
 		@Test
@@ -135,18 +136,17 @@ public class MissingFieldsMigrationTest extends ConfigUpdaterTestBase {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private static <T> T nullValue() {
 		return (T) null;
 	}
 
 	private abstract static class MissingFieldsContext {
 
-		protected MissingFieldsMigration migration(Config defaults) {
+		protected MissingFieldsMigration migration(@NotNull Config defaults) {
 			return new MissingFieldsMigration(defaults, VersionMatcher.ANY, DEFAULTS_VERSION_RESOLVER);
 		}
 
-		protected MissingFieldsMigration migration(ConfigProvider provider) {
+		protected MissingFieldsMigration migration(@NotNull ConfigProvider provider) {
 			return new MissingFieldsMigration(provider, VersionMatcher.ANY, DEFAULTS_VERSION_RESOLVER);
 		}
 	}

@@ -1,15 +1,12 @@
 package dev.spoocy.utils.config.types;
 
-
-import dev.spoocy.utils.config.components.AbstractConfig;
-import dev.spoocy.utils.config.components.MemorySection;
-import dev.spoocy.utils.common.tuple.Pair;
-import dev.spoocy.utils.config.components.ConfigNode;
-import dev.spoocy.utils.config.io.WriteableResource;
+import dev.spoocy.utils.config.AbstractConfig;
 import dev.spoocy.utils.config.loader.YamlProcessor;
-import dev.spoocy.utils.config.representer.SerializingRepresenter;
+import dev.spoocy.utils.config.nodes.NodeTree;
 import dev.spoocy.utils.config.representer.Representer;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.comments.CommentLine;
 import org.yaml.snakeyaml.comments.CommentType;
@@ -47,10 +44,11 @@ public class YamlConfig extends AbstractConfig {
         YamlProcessor processor = this.settings.processor();
         processor.applyOptions(this.settings);
 
-        MappingNode node = toNodeTree(this, processor, representer);
+        NodeTree tree = representer.createTree(this);
+        MappingNode node = toYamlTree(tree, processor);
 
-        node.setBlockComments(getCommentLines(saveHeader(this.header), CommentType.BLOCK));
-        node.setEndComments(getCommentLines(this.footer, CommentType.BLOCK));
+        node.setBlockComments(getCommentLines(saveHeader(this.header), CommentType.BLOCK, false));
+        node.setEndComments(getCommentLines(this.footer, CommentType.BLOCK, false));
 
         StringWriter writer = new StringWriter();
         if (node.getBlockComments().isEmpty() && node.getEndComments().isEmpty() && node.getValue().isEmpty()) {
@@ -66,43 +64,47 @@ public class YamlConfig extends AbstractConfig {
         return writer.toString();
     }
 
-    private MappingNode toNodeTree(@NotNull MemorySection section, @NotNull YamlProcessor processor, @NotNull Representer representer) {
+    private Node toYamlNode(@NotNull dev.spoocy.utils.config.nodes.Node node, @NotNull YamlProcessor processor) {
+        if (node instanceof NodeTree) {
+            return toYamlTree((NodeTree) node, processor);
+        }
+
+        Object value = this.unpack(node);
+        return processor.represent(value);
+    }
+
+    @Contract("_, _ -> new")
+    private @NotNull MappingNode toYamlTree(@NotNull NodeTree tree, @NotNull YamlProcessor processor) {
         List<NodeTuple> nodeTuples = new ArrayList<>();
 
-        for (Pair<String, ConfigNode> entry : section.entries()) {
-            String key = entry.first();
-            ConfigNode node = entry.second();
+        for (dev.spoocy.utils.config.nodes.NodeTuple entry : tree) {
+            dev.spoocy.utils.config.nodes.Node keyNode = entry.getKeyNode();
+            dev.spoocy.utils.config.nodes.Node valueNode = entry.getValueNode();
 
-            Node keyNode = processor.represent(key);
-            Node valueNode;
+            Node yamlKey = toYamlNode(keyNode, processor);
+            Node yamlValue = toYamlNode(valueNode, processor);
 
-            Object nodeData = node.getData();
-            dev.spoocy.utils.config.serializer.Tag tag = node.getTag();
-            
-            if (tag == dev.spoocy.utils.config.serializer.Tag.SECTION && nodeData instanceof MemorySection) {
-                // Recursively handle subsections
-                valueNode = toNodeTree((MemorySection) nodeData, processor, representer);
+            yamlKey.setBlockComments(getCommentLines(valueNode.getComments(), CommentType.BLOCK, true));
+
+            if (yamlValue instanceof MappingNode || yamlValue instanceof SequenceNode) {
+                yamlKey.setInLineComments(getCommentLines(valueNode.getInlineComments(), CommentType.IN_LINE, false));
             } else {
-                // Use representer for non-section values
-                Object represented = representer.represent(node);
-                valueNode = processor.represent(represented);
+                yamlValue.setInLineComments(getCommentLines(valueNode.getInlineComments(), CommentType.IN_LINE, false));
             }
 
-            keyNode.setBlockComments(getCommentLines(section.getComments(key), CommentType.BLOCK));
-            if (valueNode instanceof MappingNode || valueNode instanceof SequenceNode) {
-                keyNode.setInLineComments(getCommentLines(section.getInlineComments(key), CommentType.IN_LINE));
-            } else {
-                valueNode.setInLineComments(getCommentLines(section.getInlineComments(key), CommentType.IN_LINE));
-            }
-
-            nodeTuples.add(new NodeTuple(keyNode, valueNode));
+            nodeTuples.add(new NodeTuple(yamlKey, yamlValue));
         }
 
         return new MappingNode(Tag.MAP, nodeTuples, DumperOptions.FlowStyle.BLOCK);
     }
 
-    private List<CommentLine> getCommentLines(@NotNull List<String> comments, @NotNull CommentType commentType) {
+    @NotNull
+    private List<CommentLine> getCommentLines(@NotNull List<String> comments, @NotNull CommentType commentType, boolean blankLineBefore) {
         List<CommentLine> lines = new ArrayList<>();
+
+        if(blankLineBefore && !comments.isEmpty()) {
+            lines.add(new CommentLine(null, null, "", CommentType.BLANK_LINE));
+        }
 
         for (String comment : comments) {
             if (comment == null) {
@@ -114,9 +116,11 @@ public class YamlConfig extends AbstractConfig {
             line = line.isEmpty() ? line : " " + line;
             lines.add(new CommentLine(null, null, line, commentType));
         }
+
         return lines;
     }
 
+    @NotNull
     private List<String> saveHeader(@NotNull List<String> header) {
         LinkedList<String> list = new LinkedList<>(header);
 

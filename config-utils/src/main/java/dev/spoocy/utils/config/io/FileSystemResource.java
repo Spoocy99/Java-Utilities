@@ -166,4 +166,9 @@ public class FileSystemResource extends AbstractResource implements WriteableRes
     public int hashCode() {
         return this.path.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return "File System Resource [" + this.path + "]";
+    }
 }

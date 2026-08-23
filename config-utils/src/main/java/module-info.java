@@ -11,9 +11,7 @@ module dev.spoocy.utils.config {
 
     exports dev.spoocy.utils.config;
     exports dev.spoocy.utils.config.types;
-    exports dev.spoocy.utils.config.serializer;
-    exports dev.spoocy.utils.config.serializer.impl;
-    exports dev.spoocy.utils.config.components;
+    exports dev.spoocy.utils.config.bean;
     exports dev.spoocy.utils.config.io;
     exports dev.spoocy.utils.config.loader;
     exports dev.spoocy.utils.config.update;
@@ -22,4 +20,5 @@ module dev.spoocy.utils.config {
     exports dev.spoocy.utils.config.update.match;
     exports dev.spoocy.utils.config.representer;
     exports dev.spoocy.utils.config.constructor;
+    exports dev.spoocy.utils.config.nodes;
 }

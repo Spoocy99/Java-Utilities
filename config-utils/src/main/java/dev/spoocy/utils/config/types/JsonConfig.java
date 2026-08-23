@@ -1,16 +1,15 @@
 package dev.spoocy.utils.config.types;
 
-import dev.spoocy.utils.config.components.AbstractConfig;
-import dev.spoocy.utils.config.representer.SerializingRepresenter;
+import dev.spoocy.utils.config.AbstractConfig;
+import dev.spoocy.utils.config.nodes.ScalarNode;
 import dev.spoocy.utils.config.representer.Representer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.util.function.Consumer;
 
 /**
- * Configuration implementation backed by a JSON object.
- *
  * @author Spoocy99 | GitHub: Spoocy99
  */
 
@@ -35,7 +34,8 @@ public class JsonConfig extends AbstractConfig {
 
     @Override
     public @NotNull String saveToString(@NotNull Representer representer) {
-        JSONObject json = new JSONObject(serializedValues(this, representer));
+        JSONObject json = new JSONObject(this.representAsMap(representer));
         return json.toString(2);
     }
+
 }

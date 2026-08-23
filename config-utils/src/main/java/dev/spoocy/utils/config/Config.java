@@ -23,47 +23,23 @@ public interface Config extends ConfigSection {
     ConfigSettings settings();
 
     /**
-     * Serializes the config into a string representation using the default representer.
+     * Serializes the configuration data into a string format using the provided representer.
      *
-     * @return the string representation of the config
+     * @param representer the representer used to serialize the configuration data
      *
-     * @see ConfigSettings#representer(Representer)
-     */
-    @NotNull
-    default String saveToString() {
-        return saveToString(this.settings().representer());
-    }
-
-    /**
-     * Serializes the config to a string representation using a custom representer.
-     *
-     * @param representer the representer to use for converting values to config nodes
-     *
-     * @return the string representation of the config
+     * @return the serialized string representation of the configuration data
      */
     @NotNull
     String saveToString(@NotNull Representer representer);
 
     /**
-     * Saves the configuration to the specified writable resource using the default representer for serialization.
+     * Saves the configuration data to the specified writable resource using the provided representer.
+     * This method serializes the configuration into a specific format and writes it to the provided file.
      *
-     * @param file the writable resource where the configuration should be saved; must not be null
+     * @param file        the writable resource where the configuration data will be saved
+     * @param representer the representer used for serializing the configuration data
      *
-     * @throws IOException if an error occurs while writing to the resource
-     *
-     * @see ConfigSettings#representer(Representer)
-     */
-    default void save(@NotNull WriteableResource file) throws IOException {
-        save(file, this.settings().representer());
-    }
-
-    /**
-     * Saves the configuration to the specified writable resource using the provided representer for serialization.
-     *
-     * @param file        the writable resource where the configuration should be saved; must not be null
-     * @param representer the representer used to serialize the configuration; must not be null
-     *
-     * @throws IOException if an error occurs while writing to the resource
+     * @throws IOException if an I/O error occurs during the save operation
      */
     void save(@NotNull WriteableResource file, @NotNull Representer representer) throws IOException;
 

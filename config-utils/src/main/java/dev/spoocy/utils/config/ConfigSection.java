@@ -21,14 +21,6 @@ public interface ConfigSection extends Writeable, Readable {
     String getName();
 
     /**
-     * Gets the path of this section.
-     *
-     * @return The path of this section.
-     */
-    @NotNull
-    String getWorkingPath();
-
-    /**
      * Gets the root config of this section.
      *
      * @return The root config of this section.
@@ -46,9 +38,12 @@ public interface ConfigSection extends Writeable, Readable {
 
     /**
      * Determines whether the specified path represents a valid section.
+     * A section can exist even when a certain path has a value.
      *
      * @param path The path to check for being a section. Must not be null.
      * @return {@code true} if the specified path corresponds to a section, {@code false} otherwise.
+     *
+     * {@link #is(String, Class)}
      */
     boolean isSection(@NotNull String path);
 
@@ -58,15 +53,41 @@ public interface ConfigSection extends Writeable, Readable {
      * @param path The path of the section to get, relative to this section.
      *
      * @return The section at the specified path, or {@code null} if there is no section at the specified path.
+     *
+     * @throws IllegalArgumentException if there is a value at the specified path that is not a section.
      */
-    @Nullable
+    @NotNull
     ConfigSection getSection(@NotNull String path);
 
     /**
-     * Retrieves the section at the specified path or an empty section if no section exists at the path.
+     * Gets the section at the specified path if it exists,
+     * or {@code null} if it does not exist.
      *
-     * @param path The path to retrieve the section from. Must not be null.
-     * @return The section at the specified path if it exists, or an empty section otherwise. Never null.
+     * @param path The path of the section to get, relative to this section.
+     *
+     * @return The section at the specified path, or {@code null}.
+     */
+    @Nullable
+    ConfigSection getSectionIfExists(@NotNull String path);
+
+    /**
+     * Gets the section at the specified path if it exists,
+     * or an empty section if it does not exist.
+     *
+     * @param path The path of the section to get, relative to this section.
+     *
+     * @return The section at the specified path, or an empty section.
+     */
+    @NotNull
+    ConfigSection getSectionOrEmpty(@NotNull String path);
+
+    /**
+     * Gets the section at the specified path,
+     * or creates a new section if it does not exist.
+     *
+     * @param path The path of the section to get or create, relative to this section.
+     *
+     * @return The section at the specified path, or a newly created section.
      */
     @NotNull
     ConfigSection getOrCreateSection(@NotNull String path);
@@ -77,8 +98,6 @@ public interface ConfigSection extends Writeable, Readable {
      * @param path The path of the section to create, relative to this section.
      *
      * @return The newly created section.
-     *
-     * @throws IllegalArgumentException if there is already a object at the specified path.
      */
     @NotNull
     ConfigSection createSection(@NotNull String path);
@@ -90,8 +109,6 @@ public interface ConfigSection extends Writeable, Readable {
      * @param map  The data to initialize the newly created section with.
      *
      * @return The newly created section.
-     *
-     * @throws IllegalArgumentException if there is already an object at the specified path.
      */
     @NotNull
     ConfigSection createSection(@NotNull String path, @NotNull Map<?, ?> map);

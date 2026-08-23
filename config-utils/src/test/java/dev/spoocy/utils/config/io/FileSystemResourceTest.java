@@ -1,6 +1,7 @@
 package dev.spoocy.utils.config.io;
 
 import dev.spoocy.utils.common.misc.FileUtils;
+import dev.spoocy.utils.config.ResourceTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;

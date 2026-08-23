@@ -1,14 +1,11 @@
 package dev.spoocy.utils.config;
 
-import dev.spoocy.utils.config.constructor.Constructor;
 import dev.spoocy.utils.config.io.Resource;
+import dev.spoocy.utils.config.loader.ConfigLoader;
 import dev.spoocy.utils.config.loader.JsonConfigLoader;
 import dev.spoocy.utils.config.loader.YamlConfigLoader;
-import dev.spoocy.utils.config.representer.Representer;
-import dev.spoocy.utils.config.update.ConfigUpdater;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.IOException;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Spoocy99 | GitHub: Spoocy99
@@ -21,18 +18,18 @@ public interface ResourceResolver {
             JsonConfigLoader.INSTANCE
     );
 
-    SafeResourceResolver SAFE = new SafeResourceResolver(Resources.class.getClassLoader(),
-            YamlConfigLoader.INSTANCE,
-            JsonConfigLoader.INSTANCE
-    );
-
     static BaseResourceResolver defaultResolver() {
         return DEFAULT;
     }
 
-    static SafeResourceResolver safeResolver() {
-        return SAFE;
-    }
+    /**
+     * Retrieves the {@link ClassLoader} associated with the current implementation of the resource resolver.
+     *
+     * @return the {@link ClassLoader} used for resource resolution, or null if no specific
+     *         {@link ClassLoader} is associated.
+     */
+    @Nullable
+    ClassLoader getClassLoader();
 
     /**
      * Resolves a location string to a concrete {@link Resource}.
@@ -44,31 +41,40 @@ public interface ResourceResolver {
     @NotNull
     Resource resolve(@NotNull String path);
 
+    /**
+     * Resolves a suitable {@link ConfigLoader} for the given {@link Resource}. The resulting loader
+     * is capable of parsing and handling the configuration data associated with the resource.
+     *
+     * @param resource the resource for which a configuration loader needs to be resolved;
+     *                 must not be null
+     *
+     * @return a {@link ConfigLoader} instance capable of processing the specified resource,
+     *         or null if no suitable loader is found
+     */
+    @Nullable
+    ConfigLoader<? extends Config, ?> resolveLoader(@NotNull Resource resource);
+
+    /**
+     * Resolves and retrieves a suitable {@link ConfigLoader} for the specified {@link Resource}.
+     * The resulting loader is guaranteed to be non-null and capable of parsing and handling
+     * configuration data associated with the given resource.
+     *
+     * @param resource the resource for which a configuration loader is required;
+     *                 must not be null
+     * @return a {@link ConfigLoader} instance capable of processing the specified resource;
+     *         never null
+     * @throws IllegalArgumentException if no suitable loader is found for the resource
+     */
     @NotNull
-    Config loadConfig(@NotNull Resource resource, @NotNull Constructor constructor) throws IOException;
+    ConfigLoader<? extends Config, ?> requireLoader(@NotNull Resource resource);
 
+    /**
+     * Creates an empty configuration instance associated with the provided resource.
+     *
+     * @param resource the resource with which the empty configuration will be associated;
+     *                 must not be null
+     * @return a new instance of {@link Config} representing an empty configuration
+     */
     @NotNull
-    Config loadConfig(@NotNull Resource resource, @NotNull Constructor constructor, @NotNull ConfigUpdater updater)
-            throws IOException;
-
-    @NotNull
-    Document loadDocument(@NotNull Resource resource, @NotNull Constructor constructor) throws IOException;
-
-    @NotNull
-    Document loadDocument(@NotNull Resource resource, @NotNull Constructor constructor, @NotNull ConfigUpdater updater)
-            throws IOException;
-
-    @NotNull
-    <T> T load(@NotNull Class<T> type, @NotNull Readable readable);
-
-    @NotNull
-    <T> T load(@NotNull Class<T> type, @NotNull Constructor constructor) throws IOException;
-
-    @NotNull
-    <T> T load(@NotNull Class<T> type, @NotNull Constructor constructor, @NotNull Resource resource) throws IOException;
-
-    void save(@NotNull Object instance, @NotNull Representer representer) throws IOException;
-
-    void save(@NotNull Object instance, @NotNull Representer representer, @NotNull Resource resource) throws IOException;
-
+    Config createEmpty(@NotNull Resource resource);
 }

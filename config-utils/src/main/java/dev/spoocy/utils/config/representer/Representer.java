@@ -1,11 +1,8 @@
 package dev.spoocy.utils.config.representer;
 
-import dev.spoocy.utils.config.components.ConfigNode;
-import dev.spoocy.utils.config.components.MemorySection;
+import dev.spoocy.utils.config.MemorySection;
+import dev.spoocy.utils.config.nodes.NodeTree;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Map;
 
 /**
  * @author Spoocy99 | GitHub: Spoocy99
@@ -13,10 +10,10 @@ import java.util.Map;
 
 public interface Representer {
 
+    /**
+     *
+     */
     @NotNull
-    Map<String, Object> represent(@NotNull MemorySection section);
-
-    @Nullable
-    Object represent(@Nullable ConfigNode data);
+    NodeTree createTree(@NotNull MemorySection section);
 
 }

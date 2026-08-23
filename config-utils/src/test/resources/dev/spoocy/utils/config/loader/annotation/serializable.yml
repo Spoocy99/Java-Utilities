@@ -1,5 +1,5 @@
 serializable:
-  ==: dev.spoocy.utils.config.types.SerializableExample
+  ==: dev.spoocy.utils.config.SerializableExample
   name: example
   value: 42
 

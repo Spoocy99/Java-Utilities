@@ -1,7 +1,8 @@
 package dev.spoocy.utils.config.representer;
 
-import dev.spoocy.utils.config.components.ConfigNode;
+import dev.spoocy.utils.config.nodes.Node;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Spoocy99 | GitHub: Spoocy99
@@ -10,14 +11,8 @@ import org.jetbrains.annotations.NotNull;
 @FunctionalInterface
 public interface Represent {
 
-    /**
-     * Represents and returns a serializable object based on the provided ConfigNode.
-     *
-     * @param node the ConfigNode containing data to represent; must not be null
-     *
-     * @return represented data
-     */
-    Object represent(@NotNull ConfigNode node);
+    @NotNull
+    Node represent(@Nullable Object data);
 
 }
 

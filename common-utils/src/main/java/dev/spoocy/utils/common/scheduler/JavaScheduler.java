@@ -1,5 +1,6 @@
 package dev.spoocy.utils.common.scheduler;
 
+import dev.spoocy.utils.common.misc.Args;
 import dev.spoocy.utils.common.scheduler.task.CompletableTask;
 import dev.spoocy.utils.common.scheduler.task.Task;
 import org.jetbrains.annotations.NotNull;
@@ -21,9 +22,9 @@ public class JavaScheduler implements Scheduler, AutoCloseable {
         this(Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(corePoolSize));
     }
 
-    public JavaScheduler(ExecutorService executorService, ScheduledExecutorService scheduledExecutorService) {
-        this.executorService = executorService;
-        this.scheduledExecutorService = scheduledExecutorService;
+    public JavaScheduler(@NotNull ExecutorService executorService, @NotNull ScheduledExecutorService scheduledExecutorService) {
+        this.executorService = Args.notNull(executorService, "executorService");
+        this.scheduledExecutorService = Args.notNull(scheduledExecutorService, "scheduledExecutorService");
     }
 
     @Override

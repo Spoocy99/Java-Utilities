@@ -1,10 +1,7 @@
 package dev.spoocy.utils.config.types;
 
 import dev.spoocy.utils.config.Config;
-import dev.spoocy.utils.config.constructor.Constructor;
 import dev.spoocy.utils.config.loader.YamlProcessor;
-import dev.spoocy.utils.config.representer.Representer;
-import dev.spoocy.utils.config.serializer.Serializers;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -25,26 +22,8 @@ public class YamlSettings extends ConfigSettings {
     }
 
     @Override
-    public @NotNull YamlSettings constructor(@NotNull Constructor constructor) {
-        super.constructor(constructor);
-        return this;
-    }
-
-    @Override
-    public @NotNull YamlSettings representer(@NotNull Representer representer) {
-        super.representer(representer);
-        return this;
-    }
-
-    @Override
     public @NotNull YamlSettings pathSeparator(char value) {
         super.pathSeparator(value);
-        return this;
-    }
-
-    @Override
-    public @NotNull YamlSettings serializers(@NotNull Serializers serializers) {
-        super.serializers(serializers);
         return this;
     }
 

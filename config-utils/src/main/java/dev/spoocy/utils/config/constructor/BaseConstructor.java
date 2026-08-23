@@ -1,15 +1,13 @@
 package dev.spoocy.utils.config.constructor;
 
-import dev.spoocy.utils.common.tuple.Pair;
-import dev.spoocy.utils.config.components.ConfigNode;
-import dev.spoocy.utils.config.components.MemorySection;
-import dev.spoocy.utils.config.serializer.Tag;
+import dev.spoocy.utils.config.AbstractConfig;
+import dev.spoocy.utils.config.MemorySection;
+import dev.spoocy.utils.config.Tag;
+import dev.spoocy.utils.config.nodes.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Spoocy99 | GitHub: Spoocy99
@@ -17,59 +15,116 @@ import java.util.Map;
 
 public abstract class BaseConstructor implements Constructor {
 
-    private final Map<Tag, Construct> constructs = new HashMap<>();
+
+    /**
+     * A {@link Construct} defines how a specific tag should be constructed.
+     */
+    @NotNull
+    protected final Map<Tag, Construct> constructors = new HashMap<>();
+
+    /**
+     * Default constructor for null values.
+     */
+    @NotNull
+    protected Construct nullConstructor = data -> null;
 
     public BaseConstructor() {
 
     }
 
-    protected void setConstruct(@NotNull Tag tag, @NotNull Construct construct) {
-        this.constructs.put(tag, construct);
+    protected void constructNull(@NotNull Construct constructor) {
+        this.nullConstructor = constructor;
     }
 
-    protected void setConstruct(@NotNull Class<?> clazz, @NotNull Construct construct) {
-        setConstruct(new Tag(clazz), construct);
-    }
-
-    @Override
-    public void constructMappings(@NotNull MemorySection section, Map<Object, Object> mapping) {
-        flattenMappings(section);
+    protected void construct(@NotNull Tag tag, @NotNull Construct constructor) {
+        this.constructors.put(tag, constructor);
     }
 
     @Nullable
     protected Construct getConstruct(@NotNull Tag tag) {
-        return this.constructs.get(tag);
+        return this.constructors.get(tag);
     }
 
-    protected void flattenMappings(@NotNull MemorySection section) {
-        List<Pair<String, ConfigNode>> nodes = section.entries();
+    @Override
+    public void constructMappings(@NotNull AbstractConfig config, @NotNull Map<Object, Object> map, @NotNull NodeConstructor nodeConstructor) {
+        applyTree(config, constructTree(map, nodeConstructor));
+    }
 
-        for (Pair<String, ConfigNode> pair : nodes) {
-            ConfigNode node = pair.second();
+    protected void applyTree(@NotNull MemorySection section, @NotNull NodeTree tree) {
+        // first level will always be treated as base
+        for (NodeTuple tuple : tree) {
 
-            if (node.getTag() == Tag.SECTION && node.getData() instanceof MemorySection) {
-                MemorySection data = (MemorySection) node.getData();
-                flattenMappings(data);
+            String key = constructObject(tuple.getKeyNode()).toString();
+            Object value = constructObject(tuple.getValueNode());
+
+            if (value instanceof Map<?, ?>) {
+                // map should be converted to section for easier access
+                section.createSection(key, (Map<?, ?>) value);
+                continue;
             }
 
-            Object value = construct(node);
-            if (value != null) {
-                node.setData(value);
-            }
+            section.set(key, value);
         }
     }
 
-    protected Object construct(@Nullable ConfigNode node) {
-        if (node == null) {
-            return null;
+    @Override
+    public @NotNull NodeTree constructTree(@NotNull Map<Object, Object> mappings, @NotNull NodeConstructor nodeConstructor) {
+        List<NodeTuple> tuples = new ArrayList<>(mappings.size());
+
+        for (Map.Entry<?, ?> entry : mappings.entrySet()) {
+            Node keyNode = nodeConstructor.construct(entry.getKey());
+            Node valueNode = nodeConstructor.construct(entry.getValue());
+            tuples.add(NodeTuple.of(keyNode, valueNode));
         }
+
+        return new NodeTree(Tag.MAP, tuples, null, null);
+    }
+
+    protected Object constructObject(@NotNull Node node) {
 
         Tag tag = node.getTag();
-        Construct construct = getConstruct(tag);
 
-        if (construct != null) {
-            return construct.construct(node);
+        if (tag == Tag.NULL) {
+            return this.nullConstructor.construct(node);
         }
-        return null;
+
+        Construct constructor = getConstruct(tag);
+        if (constructor != null) {
+            return constructor.construct(node);
+        }
+
+        if(node instanceof ScalarNode) {
+            return constructScalar((ScalarNode) node);
+        }
+
+        throw new IllegalStateException("Unsupported tag: " + tag);
     }
+
+    @Nullable
+    protected Object constructScalar(@NotNull ScalarNode node) {
+        return node.getData();
+    }
+
+     @Nullable
+    protected String constructScalarString(@NotNull ScalarNode node) {
+        Object data = constructScalar(node);
+        if (data == null) {
+            return "null";
+        }
+
+        return data.toString();
+    }
+
+    protected List<Object> createList(int initSize) {
+        return new ArrayList<>(initSize);
+    }
+
+    protected Set<Object> createSet(int initSize) {
+        return new LinkedHashSet<>(initSize);
+    }
+
+    protected Map<Object, Object> createMap(int initSize) {
+        return new LinkedHashMap<>(initSize);
+    }
+
 }

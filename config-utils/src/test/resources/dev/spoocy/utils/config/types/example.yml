@@ -1,6 +1,18 @@
 foo: bar
 key2: 123
+
 serializable:
-  ==: "dev.spoocy.utils.config.types.SerializableExample"
+  ==: "dev.spoocy.utils.config.SerializableExample"
   name: "example"
   value: 42
+
+list:
+    - item1
+    - item2
+    - item3
+
+objects:
+    - name: "object1"
+      value: 1
+    - name: "object2"
+      value: 2

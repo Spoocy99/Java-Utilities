@@ -183,5 +183,10 @@ public class UrlResource extends ResolvableResource {
     public int hashCode() {
         return this.url.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return "Url resource [" + this.url + "]";
+    }
 }
 

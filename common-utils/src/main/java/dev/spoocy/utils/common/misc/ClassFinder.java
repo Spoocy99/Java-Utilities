@@ -1,5 +1,8 @@
 package dev.spoocy.utils.common.misc;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 /**
  * @author Spoocy99 | GitHub: Spoocy99
  */
@@ -8,10 +11,12 @@ public class ClassFinder extends SecurityManager {
 
     private static final ClassFinder INSTANCE = new ClassFinder();
 
+    @NotNull
     public static String callingClassName() {
         return callingClassName(2);
     }
 
+    @NotNull
     public static String callingClassName(final int depth) {
         StackTraceElement[] elements = Thread.currentThread().getStackTrace();
         if (elements.length <= depth) {

@@ -11,6 +11,7 @@ import dev.spoocy.utils.config.io.WriteableResource;
 import dev.spoocy.utils.config.loader.JsonConfigLoader;
 import dev.spoocy.utils.config.loader.YamlConfigLoader;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -88,13 +89,13 @@ public final class Resources {
     }
 
     @NotNull
-    public static ClassPathResource fromJar(@NotNull String path, Class<?> clazz) {
+    public static ClassPathResource fromJar(@NotNull String path, @Nullable Class<?> clazz) {
         Args.notNull(path, "path");
         return new ClassPathResource(path, clazz);
     }
 
     @NotNull
-    public static ClassPathResource fromJar(@NotNull String path, ClassLoader loader) {
+    public static ClassPathResource fromJar(@NotNull String path, @Nullable ClassLoader loader) {
         Args.notNull(path, "path");
         return new ClassPathResource(path, loader);
     }

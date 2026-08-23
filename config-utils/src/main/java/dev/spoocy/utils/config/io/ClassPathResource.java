@@ -173,6 +173,11 @@ public class ClassPathResource extends ResolvableResource {
         return this.absolutePath.hashCode();
     }
 
+    @Override
+    public String toString() {
+        return "Class Path resource [" + this.absolutePath + "]";
+    }
+
     private static ClassLoader getDefaultClassLoader() {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         if (cl == null) {

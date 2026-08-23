@@ -16,6 +16,7 @@ public interface Commentable {
      *
      * @return a list of header comments, or an empty list if there are no header comments.
      */
+    @NotNull
     List<String> getHeaderComments();
 
     /**
@@ -23,6 +24,7 @@ public interface Commentable {
      *
      * @return a list of footer comments, or an empty list if there are no footer comments.
      */
+    @NotNull
     List<String> getFooterComments();
 
     /**
@@ -32,6 +34,7 @@ public interface Commentable {
      *
      * @return a list of comments for the specified path, or an empty list if there are no comments for the specified path.
      */
+    @NotNull
     List<String> getComments(@NotNull final String path);
 
     /**
@@ -41,6 +44,7 @@ public interface Commentable {
      *
      * @return a list of inline comments for the specified path, or an empty list if there are no inline comments for the specified path.
      */
+    @NotNull
     List<String> getInlineComments(@NotNull final String path);
 
     /**
