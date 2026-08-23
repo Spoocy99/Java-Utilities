@@ -74,10 +74,10 @@ public class ConfigBeanSaveTest extends ConfigBeanTest {
     }
 
     @Test
-    void saveToProvidedDocument() throws Exception {
+    void saveToProvidedDocument(@TempDir Path path) throws Exception {
         Bean bean = new Bean();
         YamlConfig yaml = YamlConfigLoader.INSTANCE.createEmpty(s -> {});
-        Resource resource = Resources.fromPath(Path.of("test-bean-save1.yml"));
+        Resource resource = Resources.fromPath(path.resolve("test-bean-save1.yml"));
 
         Document document = yaml.withRelation(resource);
         LOADER.save(bean, document);
