@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -16,14 +17,17 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Slf4jLoggerFactory implements ILoggerFactory {
 
-    protected final ConcurrentHashMap<String, ILogger> loggers = new ConcurrentHashMap<>();
+    protected final Map<String, ILogger> loggers = new ConcurrentHashMap<>();
 
-    public Slf4jLoggerFactory() { }
+    public Slf4jLoggerFactory() {
+    }
 
     @Override
     public @NotNull ILogger getOrCreateLogger(@Nullable String name) {
-        return loggers.computeIfAbsent(name, log -> new Slf4jLogger(
-                LoggerFactory.getLogger(check(name))
+        final String finalName = check(name);
+
+        return loggers.computeIfAbsent(finalName, log -> new Slf4jLogger(
+                LoggerFactory.getLogger(finalName)
         ));
     }
 
@@ -33,7 +37,7 @@ public class Slf4jLoggerFactory implements ILoggerFactory {
         return this;
     }
 
-    private String check(String caller) {
+    private String check(@Nullable String caller) {
         return caller != null ? caller : "Logger";
     }
 

@@ -6,6 +6,7 @@ import dev.spoocy.utils.common.log.LogLevel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -14,8 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class DefaultLoggerFactory implements ILoggerFactory {
 
+    private final Map<String, ILogger> loggers = new ConcurrentHashMap<>();
     private LogLevel level;
-    private final ConcurrentHashMap<String, ILogger> loggers = new ConcurrentHashMap<>();
 
     public DefaultLoggerFactory() {
         this.level = LogLevel.DEFAULT_LEVEL;

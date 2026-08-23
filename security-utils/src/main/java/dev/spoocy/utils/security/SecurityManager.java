@@ -1,6 +1,6 @@
 package dev.spoocy.utils.security;
 
-import dev.spoocy.utils.common.collections.SortedArray;
+import dev.spoocy.utils.common.collections.SortedArrayList;
 import dev.spoocy.utils.reflection.Reflection;
 import dev.spoocy.utils.reflection.accessor.MethodAccessor;
 import dev.spoocy.utils.security.report.SecurityReport;
@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 
 public class SecurityManager {
 
-    private final Collection<Test> registeredTests = new SortedArray<>();
+    private final Collection<Test> registeredTests = new SortedArrayList<>();
 
     private final Report globalReport;
 
@@ -151,7 +151,7 @@ public class SecurityManager {
             try {
                 result = (TestResult) this.test.invoke(instance);
             } catch (Exception e) {
-                result = new TestResult(this.resultOnException, "Could not complete test: " + e.getMessage());
+                result = new TestResult(this.resultOnException, e, "Could not complete test: " + e.getMessage());
             }
 
             return result;

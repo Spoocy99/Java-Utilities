@@ -1,12 +1,9 @@
 package dev.spoocy.utils.common.scheduler;
 
-import dev.spoocy.utils.common.log.ILogger;
 import dev.spoocy.utils.common.scheduler.task.Task;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -14,69 +11,107 @@ import java.util.function.Supplier;
  * @author Spoocy99 | GitHub: Spoocy99
  */
 
-public class Scheduler {
+public interface Scheduler {
 
-    private static IScheduler scheduler;
-    private static final ILogger logger = ILogger.forThisClass();
+    /**
+     * Executes the given runnable synchronously.
+     *
+     * @param runnable the runnable to execute
+     */
+    void executeSync(@NotNull Runnable runnable);
 
-    private static IScheduler getScheduler() {
-        if (scheduler == null) {
-            logger.debug("Scheduler is not set, using JavaScheduler.");
-            setScheduler(new JavaScheduler());
-        }
-        return scheduler;
-    }
+    /**
+     * Executes the given runnable asynchronously.
+     *
+     * @param runnable the runnable to execute
+     */
+    void executeAsync(@NotNull Runnable runnable);
 
-    public static void setScheduler(IScheduler scheduler) {
-        Scheduler.scheduler = scheduler;
-    }
+    /**
+     * Schedules a runnable to be executed synchronously.
+     *
+     * @param runnable the runnable to execute
+     * @param <V> the type of the value returned by the runnable
+     * @return the task representing the runnable
+     */
+    <V> Task<V> runSync(@NotNull Runnable runnable);
 
-    public static void executeSync(Runnable runnable) {
-        getScheduler().executeSync(runnable);
-    }
+    /**
+     * Schedules a runnable to be executed asynchronously.
+     *
+     * @param runnable the runnable to execute
+     * @param <V> the type of the value returned by the runnable
+     * @return the task representing the runnable
+     */
+    <V> Task<V> runAsync(@NotNull Runnable runnable);
 
-    public static void executeAsync(Runnable runnable) {
-        getScheduler().executeAsync(runnable);
-    }
+    /**
+     * Schedules a runnable to be executed asynchronously after a delay.
+     *
+     * @param runnable the runnable to execute
+     * @param delay the delay before execution
+     * @param unit the unit of the delay
+     * @param <V> the type of the value returned by the runnable
+     * @return the task representing the runnable
+     */
+    <V> Task<V> runDelayed(@NotNull Runnable runnable, long delay, @NotNull TimeUnit unit);
 
-    public static <V> Task<V> runSync(Runnable runnable) {
-        return getScheduler().runSync(runnable);
-    }
+    /**
+     * Schedules a callable to be executed synchronously.
+     *
+     * @param callable the callable to execute
+     * @param <V> the type of the value returned by the callable
+     * @return the task representing the callable
+     */
+    <V> Task<V> runSyncCallable(@NotNull Callable<V> callable);
 
-    public static <V> Task<V> runAsync(Runnable runnable) {
-        return getScheduler().runAsync(runnable);
-    }
+    /**
+     * Schedules a callable to be executed asynchronously.
+     *
+     * @param callable the callable to execute
+     * @param <V> the type of the value returned by the callable
+     * @return the task representing the callable
+     */
+    <V> Task<V> runAsyncCallable(@NotNull Callable<V> callable);
 
-    public static <V> Task<V> runDelayed(Runnable runnable, long delay, TimeUnit unit) {
-        return getScheduler().runDelayed(runnable, delay, unit);
-    }
+    /**
+     * Schedules a callable to be executed asynchronously after a delay.
+     *
+     * @param callable the callable to execute
+     * @param delay the delay before execution
+     * @param unit the unit of the delay
+     * @param <V> the type of the value returned by the callable
+     * @return the task representing the callable
+     */
+    <V> Task<V> runDelayedCallable(@NotNull Callable<V> callable, long delay, @NotNull TimeUnit unit);
 
-    public static <V> Task<V> runSyncCallable(Callable<V> callable) {
-        return getScheduler().runSyncCallable(callable);
-    }
+    /**
+     * Schedules a supplier to be executed synchronously.
+     *
+     * @param supplier the supplier to execute
+     * @param <V> the type of the value returned by the supplier
+     * @return the task representing the supplier
+     */
+    <V> Task<V> runSyncSupplier(@NotNull Supplier<V> supplier);
 
-    public static <V> Task<V> runAsyncCallable(Callable<V> callable) {
-        return getScheduler().runAsyncCallable(callable);
-    }
+    /**
+     * Schedules a supplier to be executed asynchronously.
+     *
+     * @param supplier the supplier to execute
+     * @param <V> the type of the value returned by the supplier
+     * @return the task representing the supplier
+     */
+    <V> Task<V> runAsyncSupplier(@NotNull Supplier<V> supplier);
 
-    public static <V> Task<V> runDelayedCallable(Callable<V> callable, long delay, TimeUnit unit) {
-        return getScheduler().runDelayedCallable(callable, delay, unit);
-    }
+    /**
+     * Schedules a supplier to be executed asynchronously after a delay.
+     *
+     * @param supplier the supplier to execute
+     * @param delay the delay before execution
+     * @param unit the unit of the delay
+     * @param <V> the type of the value returned by the supplier
+     * @return the task representing the supplier
+     */
+    <V> Task<V> runDelayedSupplier(@NotNull Supplier<V> supplier, long delay, @NotNull TimeUnit unit);
 
-    public static <V> Task<V> callSyncSupplier(Supplier<V> supplier) {
-        return getScheduler().runSyncSupplier(supplier);
-    }
-
-    public static <V> Task<V> callAsyncSupplier(Supplier<V> supplier) {
-        return getScheduler().runAsyncSupplier(supplier);
-    }
-
-    public static <V> Task<V> callDelayedSupplier(Supplier<V> supplier, long delay, TimeUnit unit) {
-        return getScheduler().runDelayedSupplier(supplier, delay, unit);
-    }
-
-    @NotNull
-    public static  ScheduledExecutorService newScheduledThreadPool(int i) {
-        return Executors.newScheduledThreadPool(i);
-    }
 }

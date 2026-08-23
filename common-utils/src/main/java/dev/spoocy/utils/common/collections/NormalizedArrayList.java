@@ -5,6 +5,8 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 /**
+ * A custom implementation of ArrayList that normalizes the index to be 1-based instead of 0-based.
+ *
  * @author Spoocy99 | GitHub: Spoocy99
  */
 

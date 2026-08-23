@@ -1,0 +1,9 @@
+config-version: 1.0.0
+database:
+  host: db.local
+  port: 3307
+feature:
+  enabled: true
+  mode: HARD
+name: ExamplePlugin
+

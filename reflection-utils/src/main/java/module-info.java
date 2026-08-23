@@ -3,7 +3,7 @@
  */
 
 module dev.spoocy.utils.reflection {
-    requires org.jetbrains.annotations;
+    requires static org.jetbrains.annotations;
     requires dev.spoocy.utils.common;
 
     exports dev.spoocy.utils.reflection;
