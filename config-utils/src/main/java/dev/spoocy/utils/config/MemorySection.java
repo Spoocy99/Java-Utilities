@@ -683,6 +683,12 @@ public class MemorySection extends ConfigData implements ConfigSection {
         return map(list, NumberConversion::toShort);
     }
 
+    @Override
+    public @NotNull <E extends Enum<E>> List<E> getEnumList(@NotNull String path, @NotNull Class<E> type) {
+        List<?> list = this.getList(path, new ArrayList<>());
+        return map(list, o -> Enum.valueOf(type, o.toString()));
+    }
+
     @NotNull
     private <T> List<T> map(@Nullable List<?> list, @NotNull Function<Object, T> mapper) {
         if (list == null) return Collections.emptyList();

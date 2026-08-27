@@ -353,6 +353,9 @@ public interface Readable {
     @NotNull
     List<Short> getShortList(@NotNull String path);
 
+    @NotNull
+    <E extends Enum<E>> List<E> getEnumList(@NotNull String path, @NotNull Class<E> type);
+
     /**
      * Gets the value at the specified path as a List of the specified class,
      * or returns a default value if the path does not exist, is not set,

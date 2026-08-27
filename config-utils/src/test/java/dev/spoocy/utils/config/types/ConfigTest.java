@@ -848,6 +848,32 @@ public abstract class ConfigTest<C extends Config> extends ResourceTest {
         }
 
         @Test
+        void getEnumList() {
+            Config config = loader().createEmpty();
+
+            config.set("enums", List.of("LOW", "MEDIUM", "HIGH"));
+            List<TestLevel> result = config.getEnumList("enums", TestLevel.class);
+
+            assertEquals(3, result.size());
+            assertTrue(result.contains(TestLevel.LOW));
+            assertTrue(result.contains(TestLevel.MEDIUM));
+            assertTrue(result.contains(TestLevel.HIGH));
+
+        }
+
+        @Test
+        void getEnumListFilterNonEnumValues() {
+            Config config = loader().createEmpty();
+
+            config.set("enums", List.of("LOW", "unknown", "null"));
+            List<TestLevel> result = config.getEnumList("enums", TestLevel.class);
+
+            assertEquals(1, result.size());
+            assertTrue(result.contains(TestLevel.LOW));
+
+        }
+
+        @Test
         void getMapList() {
             Config config = loader().createEmpty();
             List<Map<String, Object>> mapData = List.of(

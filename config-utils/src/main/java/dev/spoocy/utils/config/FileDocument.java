@@ -294,6 +294,11 @@ public class FileDocument implements Document {
     }
 
     @Override
+    public @NotNull <E extends Enum<E>> List<E> getEnumList(@NotNull String path, @NotNull Class<E> type) {
+        return this.config.getEnumList(path, type);
+    }
+
+    @Override
     public List<Map<String, Object>> getMapList(@NotNull String path) {
         return this.config.getMapList(path);
     }
