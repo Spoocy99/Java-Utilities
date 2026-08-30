@@ -13,10 +13,12 @@ import org.jetbrains.annotations.Nullable;
 
 public class BukkitUtils {
 
+    @NotNull
     public static String getPrettyName(@NotNull Material material) {
         return getPrettyName(material.name());
     }
 
+    @NotNull
     public static String getPrettyName(@Nullable String name) {
         if (name == null) return "";
         StringBuilder builder = new StringBuilder();
@@ -148,6 +150,7 @@ public class BukkitUtils {
                 || name.contains("COMMAND_BLOCK")
                 || name.contains("PETRIFIED")
                 || name.equals("SCULK_SENSOR")
+                || name.equals("TRIAL")
         ) return false;
 
         switch (name) {
