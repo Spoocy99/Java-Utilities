@@ -1,23 +1,13 @@
 package dev.spoocy.utils.config.representer;
 
 import dev.spoocy.utils.config.Tag;
-import dev.spoocy.utils.config.nodes.Node;
-import dev.spoocy.utils.config.nodes.NodeTree;
-import dev.spoocy.utils.config.nodes.NodeTuple;
-import dev.spoocy.utils.config.nodes.NodeType;
-import dev.spoocy.utils.config.nodes.ScalarNode;
-import dev.spoocy.utils.config.nodes.SequenceNode;
+import dev.spoocy.utils.config.nodes.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,6 +42,38 @@ public class RepresenterTest {
             assertNotNull(customRepresenter.getRepresent(Map.class));
             assertNotNull(customRepresenter.getRepresent(List.class));
             assertNotNull(customRepresenter.getRepresent(DirectObject.class));
+        }
+
+    }
+
+    @Nested
+    class Settings {
+
+        @Test
+        public void testStrictRequiresRepresenter() {
+            SafeRepresenter safeRepresenter = new SafeRepresenter();
+
+            Object someObject = new Object();
+
+            assertDoesNotThrow(() -> safeRepresenter.representObject(someObject));
+
+            safeRepresenter.setStrict(true);
+
+            assertThrows(IllegalArgumentException.class, () -> safeRepresenter.representObject(someObject));
+        }
+
+        @Test
+        public void testRemoveRepresenter() {
+            SafeRepresenter safeRepresenter = new SafeRepresenter();
+            safeRepresenter.setStrict(true);
+
+            Map<?, ?> someMap = new HashMap<>();
+
+            assertDoesNotThrow(() -> safeRepresenter.representObject(someMap));
+
+            safeRepresenter.representOf(Map.class, null);
+
+            assertThrows(IllegalArgumentException.class, () -> safeRepresenter.representObject(someMap));
         }
 
     }
@@ -126,23 +148,48 @@ public class RepresenterTest {
     }
 
     @Nested
-    class Collections {
+    class Iterators {
 
         @Test
-        public void testSetSerialization() {
+        public void testIterableThrows() {
+            Iterable<?> empty = new Iterable<>() {
+
+                @Override
+                public @NotNull Iterator<Object> iterator() {
+                    return new Iterator<>() {
+
+                        @Override
+                        public boolean hasNext() {
+                            return false;
+                        }
+
+                        @Override
+                        public Object next() {
+                            return null;
+                        }
+
+                    };
+                }
+            };
+
+            assertThrows(IllegalArgumentException.class, () -> representer.representObject(empty));
+        }
+
+        @Test
+        public void testIterator() {
             Set<Object> value = new LinkedHashSet<>();
             value.add("one");
             value.add(2);
             value.add(true);
 
-            Node node = representer.representObject(value);
+            Node node = representer.representObject(value.iterator());
 
             assertNotNull(node);
             assertEquals(NodeType.SEQUENCE, node.getNodeType());
             assertInstanceOf(SequenceNode.class, node);
 
             SequenceNode sequenceNode = (SequenceNode) node;
-            assertEquals(Tag.SET, sequenceNode.getTag());
+            assertEquals(Tag.SEQ, sequenceNode.getTag());
             assertEquals(3, sequenceNode.getValue().size());
 
             ScalarNode first = assertInstanceOf(ScalarNode.class, sequenceNode.getValue().get(0));
@@ -156,6 +203,30 @@ public class RepresenterTest {
             assertEquals(true, third.getData());
             assertEquals(Tag.BOOL, third.getTag());
         }
+
+        @Test
+        public void testEmptyIterator() {
+            Node node = representer.representObject(new Iterator<>() {
+                @Override
+                public boolean hasNext() {
+                    return false;
+                }
+
+                @Override
+                public Object next() {
+                    return null;
+                }
+            });
+
+            SequenceNode sequenceNode = assertInstanceOf(SequenceNode.class, node);
+            assertEquals(Tag.SEQ, sequenceNode.getTag());
+            assertTrue(sequenceNode.getValue().isEmpty());
+        }
+
+    }
+
+    @Nested
+    class Collections {
 
         @Test
         public void testListSerialization() {
@@ -188,6 +259,44 @@ public class RepresenterTest {
 
             SequenceNode sequenceNode = assertInstanceOf(SequenceNode.class, node);
             assertEquals(Tag.SEQ, sequenceNode.getTag());
+            assertTrue(sequenceNode.getValue().isEmpty());
+        }
+
+        @Test
+        public void testSetSerialization() {
+            Set<Object> value = new LinkedHashSet<>();
+            value.add("one");
+            value.add(2);
+            value.add(true);
+
+            Node node = representer.representObject(value);
+
+            assertNotNull(node);
+            assertEquals(NodeType.SEQUENCE, node.getNodeType());
+            assertInstanceOf(SequenceNode.class, node);
+
+            SequenceNode sequenceNode = (SequenceNode) node;
+            assertEquals(Tag.SET, sequenceNode.getTag());
+            assertEquals(3, sequenceNode.getValue().size());
+
+            ScalarNode first = assertInstanceOf(ScalarNode.class, sequenceNode.getValue().get(0));
+            ScalarNode second = assertInstanceOf(ScalarNode.class, sequenceNode.getValue().get(1));
+            ScalarNode third = assertInstanceOf(ScalarNode.class, sequenceNode.getValue().get(2));
+
+            assertEquals("one", first.getData());
+            assertEquals(Tag.STR, first.getTag());
+            assertEquals(2, second.getData());
+            assertEquals(Tag.INT, second.getTag());
+            assertEquals(true, third.getData());
+            assertEquals(Tag.BOOL, third.getTag());
+        }
+
+        @Test
+        public void testEmptySetSerialization() {
+            Node node = representer.representObject(Set.of());
+
+            SequenceNode sequenceNode = assertInstanceOf(SequenceNode.class, node);
+            assertEquals(Tag.SET, sequenceNode.getTag());
             assertTrue(sequenceNode.getValue().isEmpty());
         }
 

@@ -1,11 +1,8 @@
 package dev.spoocy.utils.config.representer;
 
 import dev.spoocy.utils.common.tuple.Pair;
-import dev.spoocy.utils.config.Tag;
-import dev.spoocy.utils.config.nodes.ConfigData;
 import dev.spoocy.utils.config.MemorySection;
-import dev.spoocy.utils.config.nodes.NodeTree;
-import dev.spoocy.utils.config.nodes.ScalarNode;
+import dev.spoocy.utils.config.Tag;
 import dev.spoocy.utils.config.nodes.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -52,11 +49,21 @@ public abstract class BaseRepresenter implements Representer {
         this.nullRepresenter = represent;
     }
 
-    protected void represent(@NotNull Class<?> type, @NotNull Represent represent) {
+    protected void represent(@NotNull Class<?> type, @Nullable Represent represent) {
+        if (represent == null) {
+            this.representers.remove(type);
+            return;
+        }
+
         this.representers.put(type, represent);
     }
 
-    protected void representOf(@NotNull Class<?> parent, @NotNull Represent represent) {
+    protected void representOf(@NotNull Class<?> parent, @Nullable Represent represent) {
+        if (represent == null) {
+            this.parentRepresenters.remove(parent);
+            return;
+        }
+
         this.parentRepresenters.put(parent, represent);
     }
 
@@ -84,15 +91,15 @@ public abstract class BaseRepresenter implements Representer {
 
     protected Class<?> unwrap(@NotNull Class<?> type) {
 
-        if(type.isPrimitive()) {
-            if(type == int.class) return Integer.class;
-            if(type == long.class) return Long.class;
-            if(type == double.class) return Double.class;
-            if(type == float.class) return Float.class;
-            if(type == boolean.class) return Boolean.class;
-            if(type == char.class) return Character.class;
-            if(type == byte.class) return Byte.class;
-            if(type == short.class) return Short.class;
+        if (type.isPrimitive()) {
+            if (type == int.class) return Integer.class;
+            if (type == long.class) return Long.class;
+            if (type == double.class) return Double.class;
+            if (type == float.class) return Float.class;
+            if (type == boolean.class) return Boolean.class;
+            if (type == char.class) return Character.class;
+            if (type == byte.class) return Byte.class;
+            if (type == short.class) return Short.class;
         }
 
         return type;
@@ -158,7 +165,7 @@ public abstract class BaseRepresenter implements Representer {
             return represent.represent(data);
         }
 
-        if(strict) {
+        if (strict) {
             throw new IllegalArgumentException("Type '" + type.getName() + "' cannot be represented.");
         }
 
@@ -178,20 +185,28 @@ public abstract class BaseRepresenter implements Representer {
         return new ScalarNode(data, tag, comments, inlineComments);
     }
 
-    protected SequenceNode representSequence(@NotNull Tag tag, @NotNull Collection<?> data) {
+    protected SequenceNode representSequence(@NotNull Tag tag, @NotNull Iterable<?> data) {
         return representSequence(tag, data, null, null);
     }
 
     protected SequenceNode representSequence(
             @NotNull Tag tag,
-            @NotNull Collection<?> data,
+            @NotNull Iterable<?> data,
             @Nullable List<String> comments,
             @Nullable List<String> inlineComments
     ) {
-        final List<Node> nodes = new ArrayList<>(data.size());
+
+        int size = 10;
+        if (data instanceof Collection<?>) {
+            size = ((Collection<?>) data).size();
+        }
+
+        final List<Node> nodes = new ArrayList<>(size);
+
         for (Object obj : data) {
             nodes.add(representObject(obj));
         }
+
         return new SequenceNode(tag, nodes, comments, inlineComments);
     }
 

@@ -1,12 +1,10 @@
 package dev.spoocy.utils.config.representer;
 
 import dev.spoocy.utils.config.Tag;
-import dev.spoocy.utils.config.nodes.*;
+import dev.spoocy.utils.config.nodes.Node;
+import dev.spoocy.utils.config.nodes.ScalarNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.error.YAMLException;
-import org.yaml.snakeyaml.representer.Representer;
 
 import java.util.*;
 
@@ -23,7 +21,7 @@ public class SafeRepresenter extends BaseRepresenter {
         represent(String.class, new StringRepresenter());
         represent(Boolean.class, new BooleanRepresenter());
 
-        Represent primitiveArrayRepresenter = new RepresentPrimitiveArray();
+        Represent primitiveArrayRepresenter = new PrimitiveArrayRepresenter();
         represent(byte[].class, primitiveArrayRepresenter);
         represent(short[].class, primitiveArrayRepresenter);
         represent(int[].class, primitiveArrayRepresenter);
@@ -34,11 +32,13 @@ public class SafeRepresenter extends BaseRepresenter {
         represent(boolean[].class, primitiveArrayRepresenter);
 
         representOf(Number.class, new NumberRepresenter());
-        representOf(Object[].class, new RepresentArray());
-        representOf(Set.class, new SetRepresenter());
-        representOf(Map.class, new MapRepresenter());
-        representOf(List.class, new ListRepresenter());
         representOf(Enum.class, new RepresentEnum());
+
+        representOf(Object[].class, new ArrayRepresenter());
+        representOf(Map.class, new MapRepresenter());
+        representOf(Set.class, new SetRepresenter());
+        representOf(List.class, new ListRepresenter());
+        representOf(Iterator.class, new IteratorRepresenter());
     }
 
     protected class NullRepresenter implements Represent {
@@ -97,12 +97,37 @@ public class SafeRepresenter extends BaseRepresenter {
         }
     }
 
-
-    protected class RepresentArray implements Represent {
+    protected class RepresentEnum implements Represent {
 
         @Override
         public @NotNull Node represent(@Nullable Object data) {
-            if(!(data.getClass().isArray())) {
+            if (!(data instanceof Enum<?>)) {
+                throw new IllegalArgumentException("Tried to represent non-enum data.");
+            }
+            Tag tag = new Tag(data.getClass());
+            return representScalar(tag, ((Enum<?>) data).name());
+        }
+
+    }
+
+    protected class IteratorRepresenter implements Represent {
+
+        @Override
+        public @NotNull Node represent(@Nullable Object data) {
+            if (!(data instanceof Iterator<?>)) {
+                throw new IllegalArgumentException("Tried to represent non-iterator data.");
+            }
+
+            Iterator<Object> wrapped = (Iterator<Object>) data;
+            return representSequence(Tag.SEQ, new IteratorWrapper(wrapped));
+        }
+    }
+
+    protected class ArrayRepresenter implements Represent {
+
+        @Override
+        public @NotNull Node represent(@Nullable Object data) {
+            if (!(data.getClass().isArray())) {
                 throw new IllegalArgumentException("Tried to represent non-array data.");
             }
 
@@ -112,7 +137,7 @@ public class SafeRepresenter extends BaseRepresenter {
         }
     }
 
-    protected class RepresentPrimitiveArray implements Represent {
+    protected class PrimitiveArrayRepresenter implements Represent {
 
         @Override
         public @NotNull Node represent(@Nullable Object data) {
@@ -136,7 +161,7 @@ public class SafeRepresenter extends BaseRepresenter {
                 return representSequence(Tag.SEQ, asBooleanList(data));
             }
 
-            throw new YAMLException("Unexpected primitive '" + type.getCanonicalName() + "'");
+            throw new IllegalArgumentException("Unexpected primitive '" + type.getCanonicalName() + "'");
         }
 
         @NotNull
@@ -259,17 +284,18 @@ public class SafeRepresenter extends BaseRepresenter {
         }
     }
 
-    protected class RepresentEnum implements Represent {
+    private static class IteratorWrapper implements Iterable<Object> {
 
-        @Override
-        public @NotNull Node represent(@Nullable Object data) {
-            if (!(data instanceof Enum<?>)) {
-                throw new IllegalArgumentException("Tried to represent non-enum data.");
-            }
-            Tag tag = new Tag(data.getClass());
-            return representScalar(tag, ((Enum<?>) data).name());
+        private final Iterator<Object> iterator;
+
+        public IteratorWrapper(@NotNull Iterator<Object> iterator) {
+            this.iterator = iterator;
         }
 
+        @Override
+        public @NotNull Iterator<Object> iterator() {
+            return iterator;
+        }
     }
 
 }
