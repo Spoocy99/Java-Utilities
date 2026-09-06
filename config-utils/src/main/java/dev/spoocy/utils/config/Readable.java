@@ -1,6 +1,7 @@
 package dev.spoocy.utils.config;
 
 import dev.spoocy.utils.common.version.Version;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -321,6 +322,7 @@ public interface Readable {
      *
      * @return the value at the specified path as a List, or {@code defaultValue} if the path does not exist, is not set, or cannot be converted to a List
      */
+    @Contract("_, !null -> !null")
     List<?> getList(@NotNull String path, @Nullable List<?> defaultValue);
 
     /**
@@ -333,6 +335,7 @@ public interface Readable {
      *
      * @return the value at the specified path as a List of the specified class, or {@code null} if the path does not exist, is not set, or cannot be converted to a List of the specified class
      */
+    @Contract("_, _, !null -> !null")
     <T> List<T> getList(@NotNull String path, @NotNull Class<T> clazz, @Nullable List<T> defaultValue);
 
     @NotNull
@@ -365,27 +368,19 @@ public interface Readable {
     @NotNull
     <E extends Enum<E>> List<E> getEnumList(@NotNull String path, @NotNull Class<E> type);
 
-    /**
-     * Gets the value at the specified path as a List of the specified class,
-     * or returns a default value if the path does not exist, is not set,
-     * or cannot be converted to a List of the specified class.
-     *
-     * @param path the path to the value
-     *
-     * @return the value at the specified path as a List of the specified class, or {@code defaultValue} if the path does not exist, is not set, or cannot be converted to a List of the specified class
-     */
+    @NotNull
     List<Map<String, Object>> getMapList(@NotNull String path);
 
-    /**
-     * Gets the value at the specified path as a List of the specified class,
-     * or returns a default value if the path does not exist, is not set,
-     * or cannot be converted to a List of the specified class.
-     *
-     * @param path the path to the value
-     *
-     * @return the value at the specified path as a List of the specified class, or {@code defaultValue} if the path does not exist, is not set, or cannot be converted to a List of the specified class
-     */
+    @NotNull
     List<? extends Readable> getSectionList(@NotNull String path);
+
+    @Nullable
+    default Map<?, ?> getMap(@NotNull String path) {
+        return getMap(path, null);
+    }
+
+    @Contract("_, !null -> !null")
+    Map<?, ?> getMap(@NotNull String path, Map<?, ?> defaultValue);
 
     /**
      * Gets a Collection of all keys in this config, including nested keys.
@@ -395,7 +390,7 @@ public interface Readable {
      * @see #keys(boolean)
      */
     default Collection<String> keys() {
-        return keys(true);
+        return keys(false);
     }
 
     /**
@@ -415,7 +410,7 @@ public interface Readable {
      * @see #values(boolean)
      */
     default Map<String, Object> values() {
-        return values(true);
+        return values(false);
     }
 
     /**

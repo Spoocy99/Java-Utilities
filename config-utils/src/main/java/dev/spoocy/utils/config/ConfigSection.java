@@ -120,5 +120,6 @@ public interface ConfigSection extends Writeable, Readable {
      *
      * @return The list of sections at the specified path, or an empty list if there are no sections at the specified path.
      */
+    @NotNull
     List<ConfigSection> getSectionList(@NotNull String path);
 }

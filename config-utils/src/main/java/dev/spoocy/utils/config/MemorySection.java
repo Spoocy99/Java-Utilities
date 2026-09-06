@@ -232,11 +232,11 @@ public class MemorySection extends ConfigData implements ConfigSection {
     @Override
     public @NotNull MemorySection createSection(@NotNull String path, @NotNull Map<?, ?> map) {
         MemorySection section = createSection(path);
-        section.applyMap(map);
+        section.applyMap(map, true);
         return section;
     }
 
-    public void applyMap(@NotNull Map<?, ?> map) {
+    public void applyMap(@NotNull Map<?, ?> map, boolean applyRecursively) {
         for (Map.Entry<?, ?> entry : map.entrySet()) {
 
             Object keyObj = entry.getKey();
@@ -248,7 +248,7 @@ public class MemorySection extends ConfigData implements ConfigSection {
             String key = keyObj.toString();
             Object value = entry.getValue();
 
-            if(value instanceof Map<?, ?>) {
+            if(applyRecursively && value instanceof Map<?, ?>) {
                 this.createSection(key, (Map<?, ?>) value);
                 continue;
             }
@@ -322,20 +322,10 @@ public class MemorySection extends ConfigData implements ConfigSection {
 
     @Override
     public @Nullable Object getObject(@NotNull String path) {
-        String[] parts = splitPath(path);
-        ConfigData current = this.dataMap.get(parts[0]);
+        ConfigData data = getMapData(path);
 
-        if(parts.length == 1) {
-            if(current instanceof MemoryData) {
-                return ((MemoryData) current).getData();
-            }
-
-            return null;
-        }
-
-        if(current instanceof MemorySection) {
-            String subPath = path.substring(parts[0].length() + 1);
-            return ((MemorySection) current).getObject(subPath);
+        if(data instanceof MemoryData) {
+            return ((MemoryData) data).getData();
         }
 
         return null;
@@ -578,13 +568,13 @@ public class MemorySection extends ConfigData implements ConfigSection {
     @Override
     public <T> List<T> getList(@NotNull String path, @NotNull Class<T> clazz, @Nullable List<T> defaultValue) {
         List<T> list = new ArrayList<>();
-        List<?> value = getList(path, new ArrayList<>());
+        List<?> values = getList(path, List.of());
 
-        if (value == null || value.isEmpty()) {
+        if (values.isEmpty()) {
             return list;
         }
 
-        for (Object object : value) {
+        for (Object object : values) {
             if (clazz.isInstance(object)) {
                 list.add(clazz.cast(object));
             }
@@ -594,27 +584,56 @@ public class MemorySection extends ConfigData implements ConfigSection {
     }
 
     @Override
-    public List<Map<String, Object>> getMapList(@NotNull String path) {
-        List<?> list = getList(path, new ArrayList<>());
+    public @NotNull List<Map<String, Object>> getMapList(@NotNull String path) {
         List<Map<String, Object>> mapList = new ArrayList<>();
+        List<?> values = getList(path, List.of());
 
-        if (list == null || list.isEmpty()) {
+        if (values.isEmpty()) {
             return mapList;
         }
 
-        for (Object object : list) {
+        for (Object object : values) {
+
             if (object instanceof Map) {
                 @SuppressWarnings("unchecked")
                 Map<String, Object> map = (Map<String, Object>) object;
                 mapList.add(map);
             }
+
+            if (object instanceof MemorySection) {
+                mapList.add(toMap((MemorySection) object, true));
+            }
+
         }
 
         return mapList;
     }
 
+    @NotNull
+    private static Map<String, Object> toMap(@NotNull MemorySection section, boolean deep) {
+        Map<String, Object> values = new LinkedHashMap<>();
+
+        for (Map.Entry<String, ConfigData> entry : section.dataMap.entrySet()) {
+
+            String key = entry.getKey();
+            ConfigData data = entry.getValue();
+
+            if(data instanceof MemoryData) {
+                values.put(key, ((MemoryData) data).getData());
+                continue;
+            }
+
+            if (deep && data instanceof MemorySection) {
+                values.put(key, toMap((MemorySection) data, deep));
+            }
+
+        }
+
+        return values;
+    }
+
     @Override
-    public List<ConfigSection> getSectionList(@NotNull String path) {
+    public @NotNull List<ConfigSection> getSectionList(@NotNull String path) {
         List<Map<String, Object>> list = this.getMapList(path);
         final List<ConfigSection> sections = new ArrayList<>();
 
@@ -643,6 +662,21 @@ public class MemorySection extends ConfigData implements ConfigSection {
         }
 
         section.set(key, value);
+    }
+
+    @Override
+    public Map<?, ?> getMap(@NotNull String path, Map<?, ?> defaultValue) {
+        Object value = this.dataMap.get(path);
+
+        if(value instanceof Map) {
+            return (Map<?, ?>) value;
+        }
+
+        if(value instanceof MemorySection) {
+            return toMap((MemorySection) value, true);
+        }
+
+        return defaultValue;
     }
 
     @Override

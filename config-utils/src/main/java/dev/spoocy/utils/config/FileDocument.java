@@ -299,13 +299,18 @@ public class FileDocument implements Document {
     }
 
     @Override
-    public List<Map<String, Object>> getMapList(@NotNull String path) {
+    public @NotNull List<Map<String, Object>> getMapList(@NotNull String path) {
         return this.config.getMapList(path);
     }
 
     @Override
-    public List<ConfigSection> getSectionList(@NotNull String path) {
+    public @NotNull List<ConfigSection> getSectionList(@NotNull String path) {
         return this.config.getSectionList(path);
+    }
+
+    @Override
+    public Map<?, ?> getMap(@NotNull String path, Map<?, ?> defaultValue) {
+        return this.config.getMap(path, defaultValue);
     }
 
     @Override
