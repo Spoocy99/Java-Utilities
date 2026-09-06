@@ -4,8 +4,10 @@ import dev.spoocy.utils.common.version.Version;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Spoocy99 | GitHub: Spoocy99
@@ -280,13 +282,20 @@ public interface Readable {
     boolean isSet(@NotNull String path);
 
     /**
-     * Checks if the value at the specified path is a {@link List}.
+     * @see #isIterable(String)
+     */
+    default boolean isList(@NotNull String path) {
+        return isIterable(path);
+    }
+
+    /**
+     * Checks if the value at the specified path is a {@link Iterable}.
      *
      * @param path the path to the value
      *
      * @return {@code true} if the value at the specified path is a List, {@code false} otherwise
      */
-    boolean isList(@NotNull String path);
+    boolean isIterable(@NotNull String path);
 
     /**
      * Gets the value at the specified path as a List,

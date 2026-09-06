@@ -3,8 +3,8 @@ package dev.spoocy.utils.config;
 import dev.spoocy.utils.common.version.Version;
 import dev.spoocy.utils.config.io.Resource;
 import dev.spoocy.utils.config.io.WriteableResource;
-import dev.spoocy.utils.config.types.ConfigSettings;
 import dev.spoocy.utils.config.representer.Representer;
+import dev.spoocy.utils.config.types.ConfigSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -229,8 +229,8 @@ public class FileDocument implements Document {
     }
 
     @Override
-    public boolean isList(@NotNull String path) {
-        return this.config.isList(path);
+    public boolean isIterable(@NotNull String path) {
+        return this.config.isIterable(path);
     }
 
     @Override

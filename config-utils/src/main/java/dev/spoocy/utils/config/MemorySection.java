@@ -545,15 +545,34 @@ public class MemorySection extends ConfigData implements ConfigSection {
     }
 
     @Override
-    public boolean isList(@NotNull String path) {
+    public boolean isIterable(@NotNull String path) {
         Object value = getObject(path);
-        return value instanceof List;
+        return value instanceof Iterable;
     }
 
     @Override
     public List<?> getList(@NotNull String path, @Nullable List<?> defaultValue) {
         Object value = getObject(path, defaultValue);
-        return (List<?>) (value instanceof List ? value : defaultValue);
+
+        if(value instanceof List) {
+            return (List<?>) value;
+        }
+
+        if(value instanceof Collection<?>) {
+            return new ArrayList<>((Collection<?>) value);
+        }
+
+        if(value instanceof Iterable<?>) {
+            List<Object> list = new ArrayList<>();
+
+            for(Object o : (Iterable<?>) value) {
+                list.add(o);
+            }
+
+            return list;
+        }
+
+        return defaultValue;
     }
 
     @Override
