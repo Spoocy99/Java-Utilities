@@ -1,5 +1,8 @@
 package dev.spoocy.utils.common.tuple;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Objects;
 
 /**
@@ -7,6 +10,12 @@ import java.util.Objects;
  */
 
 public class Triple<A, B, C> {
+
+    @Contract(value = "_, _, _ -> new", pure = true)
+    @NotNull
+    public static <A, B, C> Triple<A, B, C> of(A a, B b, C c) {
+        return new Triple<>(a, b, c);
+    }
 
     private final A a;
     private final B b;
@@ -19,15 +28,15 @@ public class Triple<A, B, C> {
     }
 
     public A first() {
-        return a;
+        return this.a;
     }
 
     public B second() {
-        return b;
+        return this.b;
     }
 
     public C third() {
-        return c;
+        return this.c;
     }
 
     @Override
@@ -45,11 +54,7 @@ public class Triple<A, B, C> {
 
     @Override
     public String toString() {
-        return "Triple{" +
-                "a=" + a +
-                ", b=" + b +
-                ", c=" + c +
-                '}';
+        return "Triple{" + a + ", " + b + ", " + c + "}";
     }
 
 }
