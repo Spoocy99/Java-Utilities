@@ -12,7 +12,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -46,7 +47,7 @@ public class JsonConfigLoader implements ConfigLoader<JsonConfig, JsonSettings> 
     ) throws IOException {
         checkDependency();
 
-        JsonConfig config = new JsonConfig();
+        JsonConfig config = new JsonConfig(settingsEditor);
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
 
