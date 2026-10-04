@@ -141,7 +141,7 @@ public class ConfigBeanStrategiesTest extends ConfigBeanTest {
     @ConfigSource("strategies1.json")
     public static class StrategiesBean {
 
-        @ConfigProperty(
+        @Property(
                 value = "value",
                 inlineComments = "Test comment",
                 comments = {"Test comment 1", "Test comment 2"}

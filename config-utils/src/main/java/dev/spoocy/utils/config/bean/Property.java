@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ConfigProperty {
+public @interface Property {
 
     /**
      * Path relative to the source section. If empty, the field name is used.

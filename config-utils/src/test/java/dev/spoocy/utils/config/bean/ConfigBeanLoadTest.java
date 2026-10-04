@@ -44,7 +44,7 @@ class ConfigBeanLoadTest extends ConfigBeanTest {
     @ConfigSource()
     public static class FinalValueBean {
 
-        @ConfigProperty("value")
+        @Property("value")
         public final String value = "test";
 
     }
@@ -73,13 +73,13 @@ class ConfigBeanLoadTest extends ConfigBeanTest {
     @ConfigSource()
     public static class PrimitivesBean {
 
-        @ConfigProperty("str")
+        @Property("str")
         public String str = "test";
 
-        @ConfigProperty("num")
+        @Property("num")
         public int num = 1;
 
-        @ConfigProperty("bool")
+        @Property("bool")
         public boolean bool = false;
     }
 
@@ -101,10 +101,10 @@ class ConfigBeanLoadTest extends ConfigBeanTest {
     @ConfigSource()
     public static class CollectionsBean {
 
-        @ConfigProperty("list")
+        @Property("list")
         public List<String> list = new ArrayList<>();
 
-        @ConfigProperty("map")
+        @Property("map")
         public Map<String, Object> map = new LinkedHashMap<>();
     }
 
@@ -128,16 +128,16 @@ class ConfigBeanLoadTest extends ConfigBeanTest {
     @ConfigSource()
     public static class NestedBean {
 
-        @ConfigProperty("nested")
+        @Property("nested")
         public NestedValue nested;
     }
 
     public static class NestedValue {
 
-        @ConfigProperty("str")
+        @Property("str")
         public String str;
 
-        @ConfigProperty("num")
+        @Property("num")
         public int num;
     }
 

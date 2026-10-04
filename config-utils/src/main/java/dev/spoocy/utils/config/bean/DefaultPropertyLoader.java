@@ -8,12 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Spoocy99 | GitHub: Spoocy99
@@ -364,7 +359,7 @@ public class DefaultPropertyLoader implements PropertyLoader {
                     int mods = field.getModifiers();
                     if (Modifier.isStatic(mods) || Modifier.isTransient(mods) || Modifier.isFinal(mods)) continue;
 
-                    ConfigProperty ann = field.getAnnotation(ConfigProperty.class);
+                    Property ann = field.getAnnotation(Property.class);
                     String key;
                     if (ann != null) {
                         key = ann.value();

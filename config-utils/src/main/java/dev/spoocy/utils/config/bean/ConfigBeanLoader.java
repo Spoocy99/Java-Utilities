@@ -1,7 +1,10 @@
 package dev.spoocy.utils.config.bean;
 
 import dev.spoocy.utils.common.misc.Args;
-import dev.spoocy.utils.config.*;
+import dev.spoocy.utils.config.Config;
+import dev.spoocy.utils.config.ConfigSection;
+import dev.spoocy.utils.config.Document;
+import dev.spoocy.utils.config.ResourceResolver;
 import dev.spoocy.utils.config.constructor.Constructor;
 import dev.spoocy.utils.config.io.Resource;
 import dev.spoocy.utils.config.loader.ConfigLoader;
@@ -250,8 +253,7 @@ public class ConfigBeanLoader {
         return new ConfigBean<>(
                 clazz,
                 source.value(),
-                source.section()
-                        .isEmpty() ? null : source.section(),
+                source.section().isEmpty() ? null : source.section(),
                 source.saveDefaults(),
                 source.allowMissingResource(),
                 source.headerComments(),
@@ -269,6 +271,7 @@ public class ConfigBeanLoader {
         return sec != null ? sec : config.createSection(section);
     }
 
+    @NotNull
     private Document resolveDocument(@NotNull ConfigBean<?> bean) {
         Resource resource = bean.resource(this.resourceResolver);
         ConfigLoader<? extends Config, ?> loader = this.resourceResolver.requireLoader(resource);

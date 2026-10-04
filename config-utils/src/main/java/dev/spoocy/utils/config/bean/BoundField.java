@@ -33,7 +33,7 @@ public class BoundField {
 
         String fieldName = field.getName();
 
-        ConfigProperty annotation = field.getAnnotation(ConfigProperty.class);
+        Property annotation = field.getAnnotation(Property.class);
         String propertyKey = annotation != null ? annotation.value() : toPropertyName(fieldName);
         String[] comments = annotation != null ? annotation.comments() : new String[0];
         String[] inlineComments = annotation != null ? annotation.inlineComments() : new String[0];
@@ -51,6 +51,7 @@ public class BoundField {
         );
     }
 
+    @NotNull
     private static String toPropertyName(@NotNull String fieldName) {
         StringBuilder builder = new StringBuilder(fieldName.length());
         for (int i = 0; i < fieldName.length(); i++) {

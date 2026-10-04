@@ -1,6 +1,5 @@
 package dev.spoocy.utils.config.bean;
 
-import dev.spoocy.utils.common.misc.Args;
 import dev.spoocy.utils.config.ConfigSection;
 import dev.spoocy.utils.config.Readable;
 import dev.spoocy.utils.config.ResourceResolver;
@@ -221,6 +220,10 @@ public class ConfigBean<T> {
 
                 int modifiers = field.getModifiers();
                 if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers) || Modifier.isFinal(modifiers)) {
+                    continue;
+                }
+
+                if(field.getAnnotation(Transient.class) != null) {
                     continue;
                 }
 

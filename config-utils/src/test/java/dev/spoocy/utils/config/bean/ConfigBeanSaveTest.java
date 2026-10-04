@@ -98,10 +98,10 @@ public class ConfigBeanSaveTest extends ConfigBeanTest {
     )
     static class Bean {
 
-        @ConfigProperty(value = "str", inlineComments = "An example string")
+        @Property(value = "str", inlineComments = "An example string")
         public String str = "test";
 
-        @ConfigProperty(value = "num", comments = "An integer number")
+        @Property(value = "num", comments = "An integer number")
         public int num = 12;
 
     }
