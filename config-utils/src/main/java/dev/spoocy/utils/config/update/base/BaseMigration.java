@@ -82,15 +82,5 @@ public abstract class BaseMigration implements ConfigMigration {
     @Override
     public abstract boolean apply(@NotNull ConfigSection config);
 
-    /**
-     * Returns the matcher used to determine this migration's applicability.
-     *
-     * @return version matcher for this migration
-     */
-    @NotNull
-    protected VersionMatcher matcher() {
-        return this.matcher;
-    }
-
 }
 

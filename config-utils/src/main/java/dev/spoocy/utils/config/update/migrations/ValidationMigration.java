@@ -54,6 +54,12 @@ public class ValidationMigration extends BaseMigration {
     private final List<Validator> validators;
 
     public ValidationMigration(
+            @NotNull Version toVersion
+    ) {
+        this((Version) null, toVersion);
+    }
+
+    public ValidationMigration(
             @Nullable Version fromVersion,
             @NotNull Version toVersion
     ) {

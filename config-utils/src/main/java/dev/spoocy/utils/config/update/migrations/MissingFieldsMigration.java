@@ -5,9 +5,6 @@ import dev.spoocy.utils.common.version.Version;
 import dev.spoocy.utils.config.Config;
 import dev.spoocy.utils.config.ConfigProvider;
 import dev.spoocy.utils.config.ConfigSection;
-import dev.spoocy.utils.config.ResourceProvider;
-import dev.spoocy.utils.config.io.Resource;
-import dev.spoocy.utils.config.update.ConfigUpdaterChain;
 import dev.spoocy.utils.config.update.VersionMatcher;
 import dev.spoocy.utils.config.update.VersionResolver;
 import dev.spoocy.utils.config.update.base.ResourceBasedMigration;
@@ -32,6 +29,13 @@ public class MissingFieldsMigration extends ResourceBasedMigration {
 
     @Nullable
     private volatile Version cachedResolvedVersion;
+
+    public MissingFieldsMigration(
+            @NotNull Config config,
+            @NotNull VersionResolver versionResolver
+    ) {
+        this(config, null, versionResolver);
+    }
 
     public MissingFieldsMigration(
             @NotNull Config config,

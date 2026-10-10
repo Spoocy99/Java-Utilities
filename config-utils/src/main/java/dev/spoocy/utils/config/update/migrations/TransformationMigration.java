@@ -48,6 +48,12 @@ public class TransformationMigration extends BaseMigration {
     private final List<Transformation> transformations;
 
     public TransformationMigration(
+            @NotNull Version toVersion
+    ) {
+        this((Version) null, toVersion);
+    }
+
+    public TransformationMigration(
             @Nullable Version fromVersion,
             @NotNull Version toVersion
     ) {
