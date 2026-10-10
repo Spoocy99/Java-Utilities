@@ -12,6 +12,7 @@ import dev.spoocy.utils.config.representer.Representer;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -140,66 +141,20 @@ public class ConfigBeanLoaderImpl implements ConfigBeanLoader {
 
     }
 
-    /**
-     * Converts the provided instance into a {@link Config} object.
-     *
-     * @param <T>      the type of the instance being processed
-     * @param instance the instance to be written to a configuration; must not be null
-     *
-     * @return a {@code Config} object representing the serialized configuration of the provided instance
-     */
-    @Contract("_ -> new")
-    @NotNull
-    public <T> Config writeInstanceToConfig(@NotNull T instance) {
-        Args.notNull(instance, "instance");
-
-        Class<T> type = (Class<T>) instance.getClass();
-        ConfigBean<T> bean = bind(type);
-
-        Document config = resolveDocument(bean);
-        write(bean, config, instance);
-
-        return config.withoutRelation();
-    }
-
-    /**
-     * Writes the provided instance to the specified {@link Config}.
-     *
-     * @param <T>      the type of the instance being written
-     * @param instance the instance to be written to the configuration; must not be null
-     * @param config   the configuration to which the instance data will be written; must not be null
-     *
-     * @return the updated {@code Config} object containing the written instance data
-     *
-     * @throws NullPointerException if {@code instance} or {@code config} is null
-     */
-    @Contract("_, _ -> param2")
-    @NotNull
-    public <T> Config writeInstanceToConfig(@Nullable T instance, @NotNull Config config) {
-        Args.notNull(instance, "instance");
-        Args.notNull(config, "config");
-
+    @Override
+    public <T> void write(@NotNull T instance, @NotNull Config config) {
         Class<T> type = (Class<T>) instance.getClass();
         ConfigBean<T> bean = bind(type);
         write(bean, config, instance);
-
-        return config;
     }
 
-    private <T> void write(@NotNull ConfigBean<T> bean, @NotNull Config config, @Nullable T instance) {
-        ConfigSection section = resolveSection(config, bean.section());
-        bean.write(instance, section);
+    @Override
+    public <T> void write(@NotNull Class<T> clazz, @NotNull Config config) {
+        ConfigBean<T> bean = bind(clazz);
+        write(bean, config, null);
     }
 
-    /**
-     * Saves the provided configuration instance to the underlying configuration source.
-     *
-     * @param <T>      the type of the instance being saved
-     * @param instance the instance to save; must not be null
-     *
-     * @throws IOException          if an I/O error occurs while saving the instance
-     * @throws NullPointerException if {@code instance} is null
-     */
+    @Override
     public <T> void save(@NotNull T instance) throws IOException {
         Args.notNull(instance, "instance");
 
@@ -209,27 +164,40 @@ public class ConfigBeanLoaderImpl implements ConfigBeanLoader {
         writeAndSave(bean, config, instance);
     }
 
-    /**
-     * Saves the provided configuration instance to the specified {@link Document}.
-     *
-     * @param <T>      the type of the instance being saved
-     * @param instance the instance to save; must not be null
-     * @param config   the configuration document to which the instance data will be
-     *                 written; must not be null
-     *
-     * @throws IOException          if an I/O error occurs while saving the instance
-     * @throws NullPointerException if {@code instance} or {@code config} is null
-     */
-    public <T> void save(@NotNull T instance, @NotNull Document config) throws IOException {
+    @Override
+    public <T> void save(@NotNull T instance, @NotNull Document document) throws IOException {
         Args.notNull(instance, "instance");
-        Args.notNull(config, "config");
+        Args.notNull(document, "config");
 
         Class<T> type = (Class<T>) instance.getClass();
         ConfigBean<T> bean = bind(type);
-        writeAndSave(bean, config, instance);
+        writeAndSave(bean, document, instance);
     }
 
-    private <T> void writeAndSave(@NotNull ConfigBean<T> bean, @NotNull Document config, @NotNull T instance)
+    @Override
+    public <T> void saveStatic(@NotNull Class<T> clazz) throws IOException {
+        Args.notNull(clazz, "clazz");
+
+        ConfigBean<?> bean = createBean(clazz);
+        Document config = resolveDocument(bean);
+        writeAndSave(bean, config, null);
+    }
+
+    @Override
+    public <T> void saveStatic(@NotNull Class<T> clazz, @NotNull Document document) throws IOException {
+        Args.notNull(clazz, "clazz");
+        Args.notNull(document, "config");
+
+        ConfigBean<?> bean = createBean(clazz);
+        writeAndSave(bean, document, null);
+    }
+
+    private <T> void write(@NotNull ConfigBean<T> bean, @NotNull Config config, @Nullable T instance) {
+        ConfigSection section = resolveSection(config, bean.section());
+        bean.write(instance, section);
+    }
+
+    private <T> void writeAndSave(@NotNull ConfigBean<T> bean, @NotNull Document config, @Nullable T instance)
             throws IOException {
         write(bean, config, instance);
         config.save(this.representer);
@@ -253,6 +221,7 @@ public class ConfigBeanLoaderImpl implements ConfigBeanLoader {
         );
     }
 
+    @VisibleForTesting
     @NotNull
     private ConfigSection resolveSection(@NotNull Config config, @Nullable String section) {
         if (section == null || section.isEmpty()) {
@@ -263,8 +232,9 @@ public class ConfigBeanLoaderImpl implements ConfigBeanLoader {
         return sec != null ? sec : config.createSection(section);
     }
 
+    @VisibleForTesting
     @NotNull
-    private Document resolveDocument(@NotNull ConfigBean<?> bean) {
+    Document resolveDocument(@NotNull ConfigBean<?> bean) {
         Resource resource = bean.resource(this.resourceResolver);
         ConfigLoader<? extends Config, ?> loader = this.resourceResolver.requireLoader(resource);
 

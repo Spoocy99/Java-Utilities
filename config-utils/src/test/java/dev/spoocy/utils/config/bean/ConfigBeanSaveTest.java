@@ -1,6 +1,5 @@
 package dev.spoocy.utils.config.bean;
 
-import dev.spoocy.utils.config.Config;
 import dev.spoocy.utils.config.Document;
 import dev.spoocy.utils.config.Resources;
 import dev.spoocy.utils.config.io.Resource;
@@ -24,7 +23,10 @@ public class ConfigBeanSaveTest extends ConfigBeanTest {
     @Test
     void writeToConfig() {
         Bean bean = new Bean();
-        Config config = LOADER.writeInstanceToConfig(bean);
+
+        ConfigBean<Bean> configBean = LOADER.bind(Bean.class);
+        Document config = LOADER.resolveDocument(configBean);
+        LOADER.write(bean, config);
 
         assertEquals("test", config.getString("str", null));
         assertEquals(12, config.getInt("num", 0));
@@ -43,8 +45,8 @@ public class ConfigBeanSaveTest extends ConfigBeanTest {
     @Test
     void writeToProvidedConfig() {
         Bean bean = new Bean();
-        YamlConfig yaml = YamlConfigLoader.INSTANCE.createEmpty(s -> {});
-        Config config = LOADER.writeInstanceToConfig(bean, yaml);
+        YamlConfig config = YamlConfigLoader.INSTANCE.createEmpty(s -> {});
+        LOADER.write(bean, config);
 
         assertEquals("test", config.getString("str", null));
         assertEquals(12, config.getInt("num", 0));
