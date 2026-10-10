@@ -16,22 +16,16 @@ import java.lang.reflect.Modifier;
 
 public class BoundHook {
 
+    private final boolean isStatic;
     private final MethodAccessor accessor;
     private final Class<?> parameterType;
     private final boolean returnsPostLoadResult;
 
-    @Nullable
+    @NotNull
     public static BoundHook of(
             @NotNull Method method,
             @NotNull Class<? extends Annotation> annotation
     ) {
-        if (!method.isAnnotationPresent(annotation)) {
-            return null;
-        }
-
-        if (Modifier.isStatic(method.getModifiers())) {
-            throw new IllegalArgumentException("Hook method must not be static: " + method);
-        }
 
         Class<?>[] parameters = method.getParameterTypes();
         if (parameters.length > 1) {
@@ -50,22 +44,35 @@ public class BoundHook {
             throw new IllegalArgumentException("Hook method must return void: " + method);
         }
 
+        boolean isStatic = Modifier.isStatic(method.getModifiers());
         Class<?> parameterType = parameters.length == 0 ? null : parameters[0];
-        return new BoundHook(Accessor.getMethod(method), parameterType, returnsPostLoadResult);
+
+        return new BoundHook(isStatic, Accessor.getMethod(method), parameterType, returnsPostLoadResult);
     }
 
     private BoundHook(
+            boolean isStatic,
             @NotNull MethodAccessor accessor,
             @Nullable Class<?> parameterType,
             boolean returnsPostLoadResult
     ) {
+        this.isStatic = isStatic;
         this.accessor = accessor;
         this.parameterType = parameterType;
         this.returnsPostLoadResult = returnsPostLoadResult;
     }
 
+    public boolean isStatic() {
+        return this.isStatic;
+    }
+
     @NotNull
-    public PostLoadResult invoke(@NotNull Object instance, @NotNull Readable readable) {
+    public PostLoadResult invoke(@Nullable Object instance, @NotNull Readable readable) {
+
+        if (instance == null && !this.isStatic) {
+            throw new IllegalArgumentException("Instance not provided for non-static method: " + this.accessor.getMethod());
+        }
+
         Object result;
 
         if (this.parameterType == null) {

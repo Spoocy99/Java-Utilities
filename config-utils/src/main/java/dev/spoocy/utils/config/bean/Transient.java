@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a field to be ignored by the {@link ConfigBeanLoader}.
+ * Marks a field to be ignored by the {@link ConfigBeanLoaderImpl}.
  *
  * @author Spoocy99 | GitHub: Spoocy99
  */

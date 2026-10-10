@@ -25,7 +25,7 @@ public abstract class ConfigBeanTest {
     public static final SafeRepresenter REPRESENTER = new SafeRepresenter();
     public static final SafeConstructor CONSTRUCTOR = new SafeConstructor();
 
-    public static final ConfigBeanLoader LOADER = new ConfigBeanLoader(
+    public static final ConfigBeanLoaderImpl LOADER = new ConfigBeanLoaderImpl(
             RESOURCE_RESOLVER,
             REPRESENTER,
             CONSTRUCTOR

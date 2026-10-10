@@ -24,7 +24,7 @@ public class ConfigBeanSaveTest extends ConfigBeanTest {
     @Test
     void writeToConfig() {
         Bean bean = new Bean();
-        Config config = LOADER.writeToConfig(bean);
+        Config config = LOADER.writeInstanceToConfig(bean);
 
         assertEquals("test", config.getString("str", null));
         assertEquals(12, config.getInt("num", 0));
@@ -44,7 +44,7 @@ public class ConfigBeanSaveTest extends ConfigBeanTest {
     void writeToProvidedConfig() {
         Bean bean = new Bean();
         YamlConfig yaml = YamlConfigLoader.INSTANCE.createEmpty(s -> {});
-        Config config = LOADER.writeToConfig(bean, yaml);
+        Config config = LOADER.writeInstanceToConfig(bean, yaml);
 
         assertEquals("test", config.getString("str", null));
         assertEquals(12, config.getInt("num", 0));
@@ -102,7 +102,7 @@ public class ConfigBeanSaveTest extends ConfigBeanTest {
         public String str = "test";
 
         @Property(value = "num", comments = "An integer number")
-        public int num = 12;
+        public static int num = 12;
 
     }
 

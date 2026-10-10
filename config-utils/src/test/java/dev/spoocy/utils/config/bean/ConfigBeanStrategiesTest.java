@@ -27,7 +27,8 @@ public class ConfigBeanStrategiesTest extends ConfigBeanTest {
         void missingValue() {
             MemoryConfig config = new MemoryConfig();
 
-            StrategiesBean bean = LOADER.load(StrategiesBean.class, config, LoadStrategy.JUST_LOAD);
+            StrategiesBean bean = new StrategiesBean();
+            LOADER.load(bean, config, LoadStrategy.JUST_LOAD);
 
             // value in bean is overwritten
             assertEquals("default", bean.value);
@@ -41,7 +42,8 @@ public class ConfigBeanStrategiesTest extends ConfigBeanTest {
             MemoryConfig config = new MemoryConfig();
             config.set("value", "test123");
 
-            StrategiesBean bean = LOADER.load(StrategiesBean.class, config, LoadStrategy.JUST_LOAD);
+            StrategiesBean bean = new StrategiesBean();
+            LOADER.load(bean, config, LoadStrategy.JUST_LOAD);
 
             // value in bean is overwritten
             assertEquals("test123", bean.value);
@@ -59,7 +61,8 @@ public class ConfigBeanStrategiesTest extends ConfigBeanTest {
         void missingValue() {
             MemoryConfig config = new MemoryConfig();
 
-            StrategiesBean bean = LOADER.load(StrategiesBean.class, config, LoadStrategy.SAVE_DEFAULTS);
+            StrategiesBean bean = new StrategiesBean();
+            LOADER.load(bean, config, LoadStrategy.SAVE_DEFAULTS);
 
             // value in bean is overwritten
             assertEquals("default", bean.value);
@@ -85,7 +88,8 @@ public class ConfigBeanStrategiesTest extends ConfigBeanTest {
             MemoryConfig config = new MemoryConfig();
             config.set("value", "test123");
 
-            StrategiesBean bean = LOADER.load(StrategiesBean.class, config, LoadStrategy.SAVE_DEFAULTS);
+            StrategiesBean bean = new StrategiesBean();
+            LOADER.load(bean, config, LoadStrategy.SAVE_DEFAULTS);
 
             // value in bean is not overwritten
             assertEquals("test123", bean.value);
@@ -104,7 +108,8 @@ public class ConfigBeanStrategiesTest extends ConfigBeanTest {
             Resource resource = RESOURCE_RESOLVER.resolve("strategies1.json");
             Document doc = new JsonConfig().withRelation(resource);
 
-            StrategiesBean bean = LOADER.load(StrategiesBean.class, doc, LoadStrategy.SAVE_DEFAULTS_AND_RESOURCE);
+            StrategiesBean bean = new StrategiesBean();
+            LOADER.load(bean, doc, LoadStrategy.SAVE_DEFAULTS_AND_RESOURCE);
 
             // value in bean is overwritten
             assertEquals("default", bean.value);
@@ -123,7 +128,8 @@ public class ConfigBeanStrategiesTest extends ConfigBeanTest {
             Document doc = new JsonConfig().withRelation(resource);
             doc.set("value", "test123");
 
-            StrategiesBean bean = LOADER.load(StrategiesBean.class, doc, LoadStrategy.SAVE_DEFAULTS_AND_RESOURCE);
+            StrategiesBean bean = new StrategiesBean();
+            LOADER.load(bean, doc, LoadStrategy.SAVE_DEFAULTS_AND_RESOURCE);
 
             // value in bean is not overwritten
             assertEquals("test123", bean.value);

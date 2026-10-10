@@ -10,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -130,29 +129,49 @@ public class ConfigBean<T> {
         return resolver.resolve(this.resourcePath());
     }
 
-    public PostLoadResult read(@NotNull Object instance, @NotNull ConfigSection section) {
-        invokePreHooks(instance, section);
+    public PostLoadResult read(@Nullable Object instance, @NotNull ConfigSection section) {
+        final boolean staticOnly = instance == null;
+
+        invokePreHooks(staticOnly, instance, section);
 
         for (BoundField field : this.fields) {
+
+            if (staticOnly && !field.isStatic()) {
+                continue;
+            }
+
             field.load(instance, section);
         }
 
-        return invokePostHooks(instance, section);
+        return invokePostHooks(staticOnly, instance, section);
     }
 
-    public void write(@NotNull Object instance, @NotNull Writeable writable) {
+    public void write(@Nullable Object instance, @NotNull Writeable writable) {
+        final boolean staticOnly = instance == null;
+
         writable.setHeaderComments(this.headerComments);
         writable.setFooterComments(this.footerComments);
 
         for (BoundField field : this.fields) {
+
+            if (staticOnly && !field.isStatic()) {
+                continue;
+            }
+
             field.save(instance, writable);
         }
     }
 
-    public boolean writeDefaults(@NotNull Object instance, @NotNull Writeable writable) {
+    public boolean writeDefaults(@Nullable Object instance, @NotNull Writeable writable) {
+        final boolean staticOnly = instance == null;
+
         boolean changed = false;
 
         for (BoundField field : this.fields) {
+
+            if (staticOnly && !field.isStatic()) {
+                continue;
+            }
 
             if (field.shouldSaveDefault()) {
                 boolean written = field.saveIfMissing(instance, writable);
@@ -172,35 +191,34 @@ public class ConfigBean<T> {
         return changed;
     }
 
-    public void invokePreHooks(@NotNull Object instance, @NotNull Readable readable) {
+    public void invokePreHooks(final boolean staticOnly, @Nullable Object instance, @NotNull Readable readable) {
         for (BoundHook hook : this.preHooks) {
+
+            if (staticOnly && !hook.isStatic()) {
+                continue;
+            }
+
             hook.invoke(instance, readable);
         }
     }
 
     @NotNull
-    public PostLoadResult invokePostHooks(@NotNull Object instance, @NotNull Readable readable) {
+    public PostLoadResult invokePostHooks(final boolean staticOnly, @Nullable Object instance, @NotNull Readable readable) {
         PostLoadResult result = PostLoadResult.NONE;
+
         for (BoundHook hook : this.postHooks) {
+
+            if (staticOnly && !hook.isStatic()) {
+                continue;
+            }
+
             PostLoadResult hookResult = hook.invoke(instance, readable);
             if (hookResult.ordinal() > result.ordinal()) {
                 result = hookResult;
             }
         }
+
         return result;
-    }
-
-    @NotNull
-    public T newInstance() {
-
-        try {
-            Constructor<T> constructor = this.clazz.getDeclaredConstructor();
-            constructor.setAccessible(true);
-            return constructor.newInstance();
-        } catch (ReflectiveOperationException ex) {
-            throw new IllegalStateException("Cannot instantiate " + this.clazz.getName(), ex);
-        }
-
     }
 
     @NotNull
@@ -219,7 +237,7 @@ public class ConfigBean<T> {
                 }
 
                 int modifiers = field.getModifiers();
-                if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers) || Modifier.isFinal(modifiers)) {
+                if (Modifier.isTransient(modifiers) || Modifier.isFinal(modifiers)) {
                     continue;
                 }
 
@@ -248,10 +266,13 @@ public class ConfigBean<T> {
             }
 
             for (Method method : current.getDeclaredMethods()) {
-                BoundHook hook = BoundHook.of(method, annotation);
-                if (hook != null) {
-                    hooks.add(hook);
+
+                if (!method.isAnnotationPresent(annotation)) {
+                    continue;
                 }
+
+                BoundHook hook = BoundHook.of(method, annotation);
+                hooks.add(hook);
             }
         }
 

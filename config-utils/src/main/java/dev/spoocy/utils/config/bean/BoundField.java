@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 /**
  * @author Spoocy99 | GitHub: Spoocy99
@@ -16,6 +17,7 @@ import java.lang.reflect.Field;
 
 public class BoundField {
 
+    private final boolean isStatic;
     private final FieldAccessor accessor;
 
     private final String fieldName;
@@ -30,6 +32,7 @@ public class BoundField {
     @NotNull
     public static BoundField of(@NotNull ConfigBean<?> bean, @NotNull Field field) {
         FieldAccessor accessor = Accessor.getField(field);
+        boolean isStatic = Modifier.isStatic(field.getModifiers());
 
         String fieldName = field.getName();
 
@@ -40,6 +43,7 @@ public class BoundField {
         boolean saveDefault = annotation != null ? annotation.saveDefault() : bean.saveDefaults();
 
         return new BoundField(
+                isStatic,
                 accessor,
                 fieldName,
                 propertyKey,
@@ -70,6 +74,7 @@ public class BoundField {
     }
 
     private BoundField(
+            boolean isStatic,
             @NotNull FieldAccessor accessor,
             @NotNull String fieldName,
             @NotNull String propertyKey,
@@ -79,6 +84,7 @@ public class BoundField {
             @NotNull Class<?> type,
             @Nullable Class<?> collectionElementType
     ) {
+        this.isStatic = isStatic;
         this.accessor = accessor;
         this.fieldName = fieldName;
         this.propertyKey = propertyKey;
@@ -88,6 +94,10 @@ public class BoundField {
         this.type = type;
         this.collectionElementType = collectionElementType;
         this.loader = new DefaultPropertyLoader();
+    }
+
+    public boolean isStatic() {
+        return this.isStatic;
     }
 
     @NotNull
@@ -129,7 +139,11 @@ public class BoundField {
         return this.accessor.get(instance);
     }
 
-    public void load(@NotNull Object instance, @NotNull ConfigSection section) {
+    public void load(@Nullable Object instance, @NotNull ConfigSection section) {
+        if(instance == null && !this.isStatic) {
+            throw new IllegalArgumentException("Instance not provided for non-static field: " + this.fieldName);
+        }
+
         Object value = this.loader.load(section, this);
         if (value == null) {
             // wrong data type or no data set
@@ -139,14 +153,22 @@ public class BoundField {
         set(instance, value);
     }
 
-    public void save(@NotNull Object instance, @NotNull Writeable writable) {
+    public void save(@Nullable Object instance, @NotNull Writeable writable) {
+        if(instance == null && !this.isStatic) {
+            throw new IllegalArgumentException("Instance not provided for non-static field: " + this.fieldName);
+        }
+
         Object value = this.accessor.get(instance);
         writable.set(this.propertyKey, value);
         writable.setInlineComments(this.propertyKey, this.inlineComments);
         writable.setComments(this.propertyKey, this.comments);
     }
 
-    public boolean saveIfMissing(@NotNull Object instance, @NotNull Writeable writable) {
+    public boolean saveIfMissing(@Nullable Object instance, @NotNull Writeable writable) {
+        if(instance == null && !this.isStatic) {
+            throw new IllegalArgumentException("Instance not provided for non-static field: " + this.fieldName);
+        }
+
         if (writable.isSet(this.propertyKey)) {
             return false;
         }
@@ -155,7 +177,7 @@ public class BoundField {
         return true;
     }
 
-    private void set(@NotNull Object instance, @Nullable Object value) {
+    private void set(@Nullable Object instance, @Nullable Object value) {
 
         if (value == null && this.type.isPrimitive()) {
             throw new IllegalArgumentException("Cannot assign null to primitive field: '" + this.fieldName + "' (" + this.type.getName() + ") << null");

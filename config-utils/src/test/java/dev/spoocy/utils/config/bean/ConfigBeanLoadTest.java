@@ -17,6 +17,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ConfigBeanLoadTest extends ConfigBeanTest {
 
+    /**
+     * Errors
+     */
     @Nested
     class Errors {
 
@@ -26,29 +29,121 @@ class ConfigBeanLoadTest extends ConfigBeanTest {
             assertThrows(IllegalArgumentException.class, () -> LOADER.load(UnannotatedBean.class, config, LoadStrategy.JUST_LOAD));
         }
 
+    }
+
+    public static class UnannotatedBean {
+        public String value1;
+        public static String value2;
+    }
+
+    /**
+     * Behaviour Tests
+     */
+    @Nested
+    class Behaviour {
+
         @Test
         void ignoreFinalFields() {
             MemoryConfig config = new MemoryConfig();
             config.set("value", "test123");
+            config.set("value2", "test123");
 
-            FinalValueBean bean = LOADER.load(FinalValueBean.class, config, LoadStrategy.JUST_LOAD);
-            assertEquals("test", bean.value);
+            FinalValueBean bean = new FinalValueBean();
+            LOADER.load(bean, config, LoadStrategy.JUST_LOAD);
+
+            assertEquals("test", bean.value1);
+            assertEquals("test", FinalValueBean.value2);
+        }
+
+        @Test
+        void ignoreTransientFields() {
+            MemoryConfig config = new MemoryConfig();
+            config.set("value1", "test123");
+            config.set("value2", "test123");
+
+            TransientValueBean bean = new TransientValueBean();
+            LOADER.load(bean, config, LoadStrategy.JUST_LOAD);
+
+            assertEquals("test", bean.value1);
+            assertEquals("test", TransientValueBean.value2);
+        }
+
+        @Test
+        void ignoreAnnotatedFields() {
+            MemoryConfig config = new MemoryConfig();
+            config.set("value1", "test123");
+            config.set("value2", "test123");
+
+            TransientAnnotatedValueBean bean = new TransientAnnotatedValueBean();
+            LOADER.load(bean, config, LoadStrategy.JUST_LOAD);
+
+            assertEquals("test", bean.value1);
+            assertEquals("test", TransientAnnotatedValueBean.value2);
+        }
+
+        @Test
+        void loadOnlyStaticsOnClassProvided() {
+            MemoryConfig config = new MemoryConfig();
+            config.set("value1", "test123");
+            config.set("value2", "test123");
+
+            MixedBean1 bean = new MixedBean1();
+            // load via static
+            LOADER.loadStatic(MixedBean1.class, config, LoadStrategy.JUST_LOAD);
+
+            assertEquals("test", bean.value1);
+            assertEquals("test123", MixedBean1.value2);
+        }
+
+        @Test
+        void loadAllOnInstanceProvided() {
+            MemoryConfig config = new MemoryConfig();
+            config.set("value1", "test123");
+            config.set("value2", "test123");
+
+            MixedBean2 bean = new MixedBean2();
+            // load via instance
+            LOADER.load(bean, config, LoadStrategy.JUST_LOAD);
+
+            assertEquals("test123", bean.value1);
+            assertEquals("test123", MixedBean2.value2);
         }
 
     }
 
-    public static class UnannotatedBean {
-        public String value;
+    @ConfigSource()
+    public static class FinalValueBean {
+        public final String value1 = "test";
+        public static final String value2 = "test";
     }
 
     @ConfigSource()
-    public static class FinalValueBean {
-
-        @Property("value")
-        public final String value = "test";
-
+    public static class TransientValueBean {
+        public transient String value1 = "test";
+        public static transient String value2 = "test";
     }
 
+    @ConfigSource()
+    public static class TransientAnnotatedValueBean {
+        @Transient public String value1 = "test";
+        @Transient public static String value2 = "test";
+    }
+
+    @ConfigSource()
+    public static class MixedBean1 {
+        public String value1 = "test";
+        public static String value2 = "test";
+    }
+
+    @ConfigSource()
+    public static class MixedBean2 {
+        public String value1 = "test";
+        public static String value2 = "test";
+    }
+
+    /**
+     * Primitive Data types
+     */
     @Nested
     class Primitives {
 
@@ -58,7 +153,8 @@ class ConfigBeanLoadTest extends ConfigBeanTest {
             config.set("str", "test123");
             config.set("num", 12);
 
-            PrimitivesBean bean = LOADER.load(PrimitivesBean.class, config, LoadStrategy.JUST_LOAD);
+            PrimitivesBean bean = new PrimitivesBean();
+            LOADER.load(bean, config, LoadStrategy.JUST_LOAD);
 
             // overwritten by config
             assertEquals("test123", bean.str);
@@ -66,6 +162,36 @@ class ConfigBeanLoadTest extends ConfigBeanTest {
 
             // default value
             assertFalse(bean.bool);
+        }
+
+        @Test
+        void loadsStaticPrimitives() {
+            MemoryConfig config = new MemoryConfig();
+            config.set("str", "test123");
+            config.set("num", 12);
+
+            LOADER.loadStatic(StaticPrimitivesBean.class, config, LoadStrategy.JUST_LOAD);
+
+            // overwritten by config
+            assertEquals("test123", StaticPrimitivesBean.str);
+            assertEquals(12, StaticPrimitivesBean.num);
+
+            // default value
+            assertFalse(StaticPrimitivesBean.bool);
+        }
+
+        @Test
+        void loadsMixedPrimitives() {
+            MemoryConfig config = new MemoryConfig();
+            config.set("str", "test123");
+            config.set("num", 12);
+
+            MixedPrimitivesBean bean = new MixedPrimitivesBean();
+            LOADER.load(bean, config, LoadStrategy.JUST_LOAD);
+
+            // overwritten by config
+            assertEquals("test123", bean.str);
+            assertEquals(12, MixedPrimitivesBean.num);
         }
 
     }
@@ -83,6 +209,33 @@ class ConfigBeanLoadTest extends ConfigBeanTest {
         public boolean bool = false;
     }
 
+    @ConfigSource()
+    public static class StaticPrimitivesBean {
+
+        @Property("str")
+        public static String str = "test";
+
+        @Property("num")
+        public static int num = 1;
+
+        @Property("bool")
+        public static boolean bool = false;
+    }
+
+    @ConfigSource()
+    public static class MixedPrimitivesBean {
+
+        @Property("str")
+        public String str = "test";
+
+        @Property("num")
+        public static int num = 1;
+
+    }
+
+    /**
+     * Collections Data types
+     */
     @Nested
     class Collections {
 
@@ -92,7 +245,9 @@ class ConfigBeanLoadTest extends ConfigBeanTest {
             config.set("list", List.of("a", "b", "c"));
             config.set("map", Map.of("key1", "value1", "key2", 42));
 
-            CollectionsBean bean = LOADER.load(CollectionsBean.class, config, LoadStrategy.JUST_LOAD);
+            CollectionsBean bean = new CollectionsBean();
+            LOADER.load(bean, config, LoadStrategy.JUST_LOAD);
+
             assertEquals(List.of("a", "b", "c"), bean.list);
             assertEquals(Map.of("key1", "value1", "key2", 42), bean.map);
         }
@@ -108,6 +263,9 @@ class ConfigBeanLoadTest extends ConfigBeanTest {
         public Map<String, Object> map = new LinkedHashMap<>();
     }
 
+    /**
+     * Nested Data types
+     */
     @Nested
     class NestedBeans {
 
@@ -117,7 +275,8 @@ class ConfigBeanLoadTest extends ConfigBeanTest {
             config.set("nested.str", "nestedValue");
             config.set("nested.num", 99);
 
-            NestedBean bean = LOADER.load(NestedBean.class, config, LoadStrategy.JUST_LOAD);
+            NestedBean bean = new NestedBean();
+            LOADER.load(bean, config, LoadStrategy.JUST_LOAD);
 
             assertNotNull(bean.nested);
             assertEquals("nestedValue", bean.nested.str);

@@ -1,303 +1,86 @@
 package dev.spoocy.utils.config.bean;
 
-import dev.spoocy.utils.common.misc.Args;
 import dev.spoocy.utils.config.Config;
-import dev.spoocy.utils.config.ConfigSection;
-import dev.spoocy.utils.config.Document;
 import dev.spoocy.utils.config.ResourceResolver;
 import dev.spoocy.utils.config.constructor.Constructor;
-import dev.spoocy.utils.config.io.Resource;
-import dev.spoocy.utils.config.loader.ConfigLoader;
 import dev.spoocy.utils.config.representer.Representer;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.io.IOException;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author Spoocy99 | GitHub: Spoocy99
  */
-public class ConfigBeanLoader {
 
-    private static final ConcurrentMap<Class<?>, ConfigBean<?>> TYPES = new ConcurrentHashMap<>();
+public interface ConfigBeanLoader {
 
-    private final ResourceResolver resourceResolver;
-    private final Representer representer;
-    private final Constructor constructor;
-
-    public ConfigBeanLoader(
+    /**
+     * Creates a new {@link ConfigBeanLoader} using the provided parameters.
+     *
+     * @param resourceResolver The resource resolver used to resolve the configuration file
+     * @param representer      The {@link Representer} for the config files
+     * @param constructor      The {@link Constructor} for the config files
+     *
+     * @return A new {@link ConfigBeanLoader}
+     */
+    @Contract("_, _, _ -> new")
+    static @NotNull ConfigBeanLoader create(
             @NotNull ResourceResolver resourceResolver,
             @NotNull Representer representer,
             @NotNull Constructor constructor
     ) {
-        this.resourceResolver = Args.notNull(resourceResolver, "resourceResolver");
-        this.representer = Args.notNull(representer, "representer");
-        this.constructor = Args.notNull(constructor, "constructor");
+        return new ConfigBeanLoaderImpl(resourceResolver, representer, constructor);
     }
 
     /**
-     * Binds a specified class type to a configuration bean, creating it if necessary.
+     * Loads all {@link Property property fields} (instance and static) from the provided
+     * instance using the specified load strategy.
      *
-     * @param <T>   the type of the class being bound
-     * @param clazz the class type to bind; must not be null
+     * <p>
+     * Resolves the file via the {@link ConfigSource annotation value}.
      *
-     * @return a {@code ConfigBean} instance representing the bound configuration for the provided class type
+     * @param instance The instance to load
+     * @param strategy The load strategy defining how the configuration data should be processed
      *
-     * @throws IllegalArgumentException if {@code clazz} is null
+     * @throws NullPointerException if any of the provided parameters is null
      */
-    @Contract("_ -> new")
-    @NotNull
-    @SuppressWarnings("unchecked")
-    public <T> ConfigBean<T> bind(@NotNull Class<T> clazz) {
-        Args.notNull(clazz, "clazz");
-        return (ConfigBean<T>) TYPES.computeIfAbsent(clazz, this::createBean);
-    }
+    <T> void load(@NotNull T instance, @NotNull LoadStrategy strategy);
 
     /**
-     * Loads an instance of the specified class type from the given configuration using the provided load strategy.
+     * Loads all {@link Property property fields} (instance and static) from the provided
+     * instance using the specified load strategy.
      *
-     * @param <T>      the type of the object being loaded
-     * @param clazz    the class type to load; must not be null
-     * @param config   the configuration source from which the data will be loaded; must not be null
-     * @param strategy the load strategy defining how the configuration data should be processed; must not be null
+     * @param instance The instance to load
+     * @param config   The configuration source from which the data will be loaded
+     * @param strategy The load strategy defining how the configuration data should be processed
      *
-     * @return an instance of the specified class type populated with data from the given configuration
-     *
-     * @throws IllegalArgumentException if {@code clazz} or {@code config} is null
+     * @throws NullPointerException if any of the provided parameters is null
      */
-    @Contract("_, _, _ -> new")
-    @NotNull
-    public <T> T load(@NotNull Class<T> clazz, @NotNull Config config, @NotNull LoadStrategy strategy) {
-        Args.notNull(config, "config");
-        Args.notNull(clazz, "clazz");
-
-        ConfigBean<T> bean = bind(clazz);
-        T instance = bean.newInstance();
-        return load(bean, config, instance, strategy);
-    }
+    <T> void load(@NotNull T instance, @NotNull Config config, @NotNull LoadStrategy strategy);
 
     /**
-     * Loads an instance of the specified class type using the given load strategy.
+     * Loads all static {@link Property property fields} from the provided config
+     * class using the specified load strategy.
      *
-     * @param <T>      the type of the object being loaded
-     * @param clazz    the class type to load; must not be null
-     * @param strategy the load strategy defining how the configuration data should be processed; must not be null
+     * <p>
+     * Resolves the file via the {@link ConfigSource annotation value}.
      *
-     * @return an instance of the specified class type loaded with data based on the provided strategy
+     * @param clazz    The class type to load
+     * @param strategy The load strategy defining how the configuration data should be processed
      *
-     * @throws IllegalArgumentException if {@code clazz} or {@code strategy} is null
+     * @throws NullPointerException if any of the provided parameters is null
      */
-    @Contract("_, _ -> new")
-    @NotNull
-    public <T> T load(@NotNull Class<T> clazz, @NotNull LoadStrategy strategy) {
-        Args.notNull(clazz, "clazz");
-        Args.notNull(strategy, "strategy");
-
-        ConfigBean<T> bean = bind(clazz);
-        Config config = resolveDocument(bean);
-        T instance = bean.newInstance();
-
-        return load(bean, config, instance, strategy);
-    }
-
-    @Contract("_, _, _, _ -> param3")
-    @NotNull
-    private <T> T load(
-            @NotNull ConfigBean<T> bean,
-            @NotNull Config config,
-            @NotNull T instance,
-            @NotNull LoadStrategy strategy
-    ) {
-        ConfigSection source = resolveSection(config, bean.section());
-        PostLoadResult res = bean.read(instance, source);
-
-        switch (strategy) {
-            case JUST_LOAD:
-                break;
-
-            case SAVE_DEFAULTS:
-                bean.writeDefaults(instance, source);
-                break;
-
-            case SAVE_DEFAULTS_AND_RESOURCE:
-
-                if (!(config instanceof Document)) {
-                    throw new IllegalArgumentException("Config must be a Document when using LoadStrategy.SAVE_DEFAULTS_AND_RESOURCE.");
-                }
-
-                boolean changed = bean.writeDefaults(instance, source);
-
-                if(res == PostLoadResult.SAVE || changed) {
-
-                    // some defaults were written so save the config
-                    try {
-                        ((Document) config).save(this.representer);
-                    } catch (IOException ex) {
-                        throw new IllegalStateException("Failed to save config after loading defaults for " + bean.type()
-                                .getName(), ex);
-                    }
-
-                }
-
-                break;
-        }
-
-        return instance;
-    }
+    void loadStatic(@NotNull Class<?> clazz, @NotNull LoadStrategy strategy);
 
     /**
-     * Converts the provided instance into a {@link Config} object.
+     * Loads all static {@link Property property fields} from the provided config
+     * class using the specified load strategy.
      *
-     * @param <T>      the type of the instance being processed
-     * @param instance the instance to be written to a configuration; must not be null
+     * @param clazz    The class type to load
+     * @param config   The configuration source from which the data will be loaded
+     * @param strategy The load strategy defining how the configuration data should be processed
      *
-     * @return a {@code Config} object representing the serialized configuration of the provided instance
+     * @throws NullPointerException if any of the provided parameters is null
      */
-    @Contract("_ -> new")
-    @NotNull
-    public <T> Config writeToConfig(@NotNull T instance) {
-        Args.notNull(instance, "instance");
-
-        Class<T> type = (Class<T>) instance.getClass();
-        ConfigBean<T> bean = bind(type);
-
-        Document config = resolveDocument(bean);
-        write(bean, config, instance);
-
-        return config.withoutRelation();
-    }
-
-    /**
-     * Writes the provided instance to the specified {@link Config}.
-     *
-     * @param <T>      the type of the instance being written
-     * @param instance the instance to be written to the configuration; must not be null
-     * @param config   the configuration to which the instance data will be written; must not be null
-     *
-     * @return the updated {@code Config} object containing the written instance data
-     *
-     * @throws NullPointerException if {@code instance} or {@code config} is null
-     */
-    @Contract("_, _ -> param2")
-    @NotNull
-    public <T> Config writeToConfig(@NotNull T instance, @NotNull Config config) {
-        Args.notNull(instance, "instance");
-        Args.notNull(config, "config");
-
-        Class<T> type = (Class<T>) instance.getClass();
-        ConfigBean<T> bean = bind(type);
-        write(bean, config, instance);
-
-        return config;
-    }
-
-    private <T> void write(@NotNull ConfigBean<T> bean, @NotNull Config config, @NotNull T instance) {
-        ConfigSection section = resolveSection(config, bean.section());
-        bean.write(instance, section);
-    }
-
-    /**
-     * Saves the provided configuration instance to the underlying configuration source.
-     *
-     * @param <T>      the type of the instance being saved
-     * @param instance the instance to save; must not be null
-     *
-     * @throws IOException          if an I/O error occurs while saving the instance
-     * @throws NullPointerException if {@code instance} is null
-     */
-    public <T> void save(@NotNull T instance) throws IOException {
-        Args.notNull(instance, "instance");
-
-        Class<T> type = (Class<T>) instance.getClass();
-        ConfigBean<T> bean = bind(type);
-        Document config = resolveDocument(bean);
-        writeAndSave(bean, config, instance);
-    }
-
-    /**
-     * Saves the provided configuration instance to the specified {@link Document}.
-     *
-     * @param <T>      the type of the instance being saved
-     * @param instance the instance to save; must not be null
-     * @param config   the configuration document to which the instance data will be
-     *                 written; must not be null
-     *
-     * @throws IOException          if an I/O error occurs while saving the instance
-     * @throws NullPointerException if {@code instance} or {@code config} is null
-     */
-    public <T> void save(@NotNull T instance, @NotNull Document config) throws IOException {
-        Args.notNull(instance, "instance");
-        Args.notNull(config, "config");
-
-        Class<T> type = (Class<T>) instance.getClass();
-        ConfigBean<T> bean = bind(type);
-        writeAndSave(bean, config, instance);
-    }
-
-    private <T> void writeAndSave(@NotNull ConfigBean<T> bean, @NotNull Document config, @NotNull T instance)
-            throws IOException {
-        write(bean, config, instance);
-        config.save(this.representer);
-    }
-
-    @NotNull
-    private <T> ConfigBean<T> createBean(@NotNull Class<T> clazz) {
-        ConfigSource source = clazz.getAnnotation(ConfigSource.class);
-        if (source == null) {
-            throw new IllegalArgumentException("Class " + clazz.getName() + " is not annotated with @ConfigSource");
-        }
-
-        return new ConfigBean<>(
-                clazz,
-                source.value(),
-                source.section().isEmpty() ? null : source.section(),
-                source.saveDefaults(),
-                source.allowMissingResource(),
-                source.headerComments(),
-                source.footerComments()
-        );
-    }
-
-    @NotNull
-    private ConfigSection resolveSection(@NotNull Config config, @Nullable String section) {
-        if (section == null || section.isEmpty()) {
-            return config;
-        }
-
-        ConfigSection sec = config.getSectionIfExists(section);
-        return sec != null ? sec : config.createSection(section);
-    }
-
-    @NotNull
-    private Document resolveDocument(@NotNull ConfigBean<?> bean) {
-        Resource resource = bean.resource(this.resourceResolver);
-        ConfigLoader<? extends Config, ?> loader = this.resourceResolver.requireLoader(resource);
-
-        Config config;
-
-        if (resource.exists()) {
-
-            try {
-                config = loader.load(resource, this.constructor);
-            } catch (IOException e) {
-                throw new IllegalStateException("Failed to load config: " + bean.resourcePath(), e);
-            }
-
-        } else {
-
-            // config doesn't exist so create empty if allowed
-            if (bean.allowMissingResource()) {
-                config = loader.createEmpty();
-            } else {
-                throw new IllegalStateException("Missing config resource: " + bean.resourcePath());
-            }
-
-        }
-
-        return config.withRelation(resource);
-    }
+    void loadStatic(@NotNull Class<?> clazz, @NotNull Config config, @NotNull LoadStrategy strategy);
 
 }
